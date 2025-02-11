@@ -1,46 +1,42 @@
 package com.simple.datasourcing;
 
-import com.simple.datasourcing.entity.*;
-import com.simple.datasourcing.model.*;
 import com.simple.datasourcing.service.*;
 import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.context.*;
 
-import static org.assertj.core.api.Assertions.*;
+import static com.simple.datasourcing.config.ConfigReader.getProperty;
 
 @SpringBootTest
 class SimpleDataSourcingAppTests {
 
-    @Autowired
-    DataActions<TestData1> dataActions1;
-    @Autowired
-    DataActions<TestData2> dataActions2;
-    @Autowired
-    DataEventRepository<?> repo;
-
     @Test
-    void contextLoads() {
-        System.out.println("---");
-        System.out.println("Repo count : " + repo.count());
-        System.out.println("---");
+    void mongoWithTemplate() {
+        String dbUrl = getProperty("mongodb.url");
+        System.out.println("MongoDB URI: " + dbUrl);
 
-        var testData1 = TestData1.builder().id("test1").build();
-        var testData2 = TestData2.builder().id("test2").build();
+        var testData1 = new TestData1("id-1-1");
+        var testData1_2 = new TestData1("id-1-2");
+        var testData2 = new TestData2("id-2-1-last");
+        var da1 = new DataActions<>(TestData1.class);
+        var da2 = new DataActions<>(TestData2.class);
 
-        var test1 = dataActions1.createFor("testId", testData1);
-        var test2 = dataActions2.createFor("testId", testData2);
+        var uniqueId = "holli";
 
-        System.out.println(test1);
-        assertThat(test1).isNotNull().hasFieldOrPropertyWithValue("data", testData1);
-        System.out.println("---");
+        System.out.println(da1.createFor(uniqueId, testData1));
+        System.out.println(da1.createFor(uniqueId + "-next", testData1_2));
+        System.out.println(da2.createFor(uniqueId, testData2));
+        System.out.println(da2.deleteFor(uniqueId));
 
-        System.out.println(dataActions1.deleteFor("testId"));
-        System.out.println("---");
+        var allFor1 = da1.getAllFor(uniqueId);
+        allFor1.forEach(System.out::println);
 
-        dataActions1.getAllFor("testId").forEach(System.out::println);
-        System.out.println("---");
+        var lastFor2 = da2.getLastFor(uniqueId);
+        System.out.println(lastFor2);
+    }
 
-        System.out.println(dataActions1.getLastFor("testId"));
+    public record TestData1(String id) {
+    }
+
+    public record TestData2(String id) {
     }
 }
