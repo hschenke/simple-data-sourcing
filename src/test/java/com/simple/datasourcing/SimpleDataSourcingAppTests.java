@@ -4,16 +4,11 @@ import com.simple.datasourcing.service.*;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.context.*;
 
-import static com.simple.datasourcing.config.ConfigReader.getProperty;
-
 @SpringBootTest
 class SimpleDataSourcingAppTests {
 
     @Test
     void mongoWithTemplate() {
-        String dbUrl = getProperty("mongodb.url");
-        System.out.println("MongoDB URI: " + dbUrl);
-
         var testData1 = new TestData1("id-1-1");
         var testData1_2 = new TestData1("id-1-2");
         var testData2 = new TestData2("id-2-1-last");
@@ -38,5 +33,9 @@ class SimpleDataSourcingAppTests {
     }
 
     public record TestData2(String id) {
+    }
+
+    @Test
+    void test() {
     }
 }

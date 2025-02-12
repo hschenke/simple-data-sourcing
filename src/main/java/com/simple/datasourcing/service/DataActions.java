@@ -19,27 +19,27 @@ public class DataActions<T> {
     public DataActions(Class<T> clazz) {
         this.clazz = clazz;
         template.createCollection(getTableName());
-        event = new DataEvent<>();
+        event = DataEvent.create();
     }
 
-    public List<DataEvent> findByField(String field, Object value) {
+    @SuppressWarnings("unchecked")
+    public List<DataEvent<T>> findByField(String field, Object value) {
         Query query = new Query();
         query.addCriteria(Criteria.where(field).is(value));
-        return template.find(query, DataEvent.class, getTableName());
+        return (List<DataEvent<T>>) template.find(query, event.getClass(), getTableName());
     }
 
     public List<T> getAllFor(String uniqueId) {
-        return (List<T>) findByField("uniqueId", uniqueId).stream().map(DataEvent::getData).toList();
+        return findByField("uniqueId", uniqueId).stream().map(DataEvent::getData).toList();
     }
-
 
     public T getLastFor(String uniqueId) {
         Query query = new Query();
         query.addCriteria(Criteria.where("uniqueId").is(uniqueId));
         query.with(Sort.by(Sort.Direction.DESC, "timestamp")); // Sortiert nach Timestamp absteigend
         query.limit(1);
-        return (T) Optional.of(template.findOne(query, DataEvent.class, getTableName()))
-                .map(DataEvent::getData)
+        return Optional.ofNullable(template.findOne(query, DataEvent.class, getTableName()))
+                .map(de -> clazz.cast(de.getData()))
                 .orElse(null);
     }
 

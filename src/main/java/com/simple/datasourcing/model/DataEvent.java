@@ -16,14 +16,18 @@ public class DataEvent<T> {
     private LocalDateTime timestamp;
     private T data;
 
-    public DataEvent() {
-        timestamp = LocalDateTime.now();
+    private DataEvent() {
+    }
+
+    public static <T> DataEvent<T> create() {
+        return new DataEvent<>();
     }
 
     public DataEvent<T> setData(String uniqueId, boolean deleted, T data) {
         this.uniqueId = uniqueId;
         this.deleted = deleted;
         this.data = data;
+        this.timestamp = LocalDateTime.now();
         return this;
     }
 }

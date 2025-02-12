@@ -1,21 +1,22 @@
 package com.simple.datasourcing.config;
 
+import lombok.extern.slf4j.*;
+
 import java.io.*;
 import java.util.*;
 
+@Slf4j
 public class ConfigReader {
 
     private static final Properties properties = new Properties();
 
     static {
-        try (InputStream input = ConfigReader.class.getClassLoader().getResourceAsStream("application.properties")) {
-            if (input != null) {
-                properties.load(input);
-            } else {
-                System.out.println("application.properties nicht gefunden!");
-            }
+        var defaultProperties = "application.properties";
+        try (InputStream input = ConfigReader.class.getClassLoader().getResourceAsStream(defaultProperties)) {
+            if (input == null) log.error("{} not found", defaultProperties);
+            else properties.load(input);
         } catch (IOException ex) {
-
+            log.error("Exception on getting {}} : {}", defaultProperties, ex.getMessage());
         }
     }
 
