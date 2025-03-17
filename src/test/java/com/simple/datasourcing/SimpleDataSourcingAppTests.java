@@ -5,15 +5,16 @@ import org.junit.jupiter.api.*;
 import org.springframework.boot.test.context.*;
 
 @SpringBootTest
-class SimpleDataSourcingAppTests {
+class SimpleDataSourcingAppTests extends MongoTestcontainersConfiguration {
 
     @Test
     void mongoWithTemplate() {
         var testData1 = new TestData1("id-1-1");
         var testData1_2 = new TestData1("id-1-2");
         var testData2 = new TestData2("id-2-1-last");
-        var da1 = new DataActions<>(TestData1.class);
-        var da2 = new DataActions<>(TestData2.class);
+
+        var da1 = new DataActions<>(mongoDBContainer.getReplicaSetUrl(), TestData1.class);
+        var da2 = new DataActions<>(mongoDBContainer.getReplicaSetUrl(), TestData2.class);
 
         var uniqueId = "holli";
 
@@ -33,9 +34,5 @@ class SimpleDataSourcingAppTests {
     }
 
     public record TestData2(String id) {
-    }
-
-    @Test
-    void test() {
     }
 }

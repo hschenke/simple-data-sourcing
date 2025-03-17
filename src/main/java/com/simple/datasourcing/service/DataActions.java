@@ -7,35 +7,38 @@ import org.springframework.data.mongodb.core.query.*;
 
 import java.util.*;
 
-import static com.simple.datasourcing.config.ConfigReader.*;
-
 public class DataActions<T> {
 
     private final Class<T> clazz;
     private final DataEvent<T> event;
-    SimpleMongoClientDatabaseFactory factory = new SimpleMongoClientDatabaseFactory(getProperty("mongodb.url"));
-    MongoTemplate template = new MongoTemplate(factory);
+    private final MongoTemplate template;
 
-    public DataActions(Class<T> clazz) {
+    public DataActions(String mongoUri, Class<T> clazz) {
         this.clazz = clazz;
+        var factory = new SimpleMongoClientDatabaseFactory(mongoUri);
+        template = new MongoTemplate(factory);
         template.createCollection(getTableName());
+        template.createCollection(getTableName() + "-history");
         event = DataEvent.create();
     }
 
+    private Query getQueryById(Object value) {
+        var query = new Query();
+        query.addCriteria(Criteria.where("uniqueId").is(value));
+        return query;
+    }
+
     @SuppressWarnings("unchecked")
-    public List<DataEvent<T>> findByField(String field, Object value) {
-        Query query = new Query();
-        query.addCriteria(Criteria.where(field).is(value));
-        return (List<DataEvent<T>>) template.find(query, event.getClass(), getTableName());
+    public List<DataEvent<T>> findById(Object value) {
+        return (List<DataEvent<T>>) template.find(getQueryById(value), event.getClass(), getTableName());
     }
 
     public List<T> getAllFor(String uniqueId) {
-        return findByField("uniqueId", uniqueId).stream().map(DataEvent::getData).toList();
+        return findById(uniqueId).stream().map(DataEvent::getData).toList();
     }
 
     public T getLastFor(String uniqueId) {
-        Query query = new Query();
-        query.addCriteria(Criteria.where("uniqueId").is(uniqueId));
+        var query = getQueryById(uniqueId);
         query.with(Sort.by(Sort.Direction.DESC, "timestamp")); // Sortiert nach Timestamp absteigend
         query.limit(1);
         return Optional.ofNullable(template.findOne(query, DataEvent.class, getTableName()))
