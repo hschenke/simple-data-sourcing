@@ -29,7 +29,7 @@ public class DataActions<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public List<DataEvent<T>> findById(Object value) {
+    private List<DataEvent<T>> findById(Object value) {
         return (List<DataEvent<T>>) template.find(getQueryById(value), event.getClass(), getTableName());
     }
 
@@ -52,6 +52,10 @@ public class DataActions<T> {
 
     public DataEvent<T> deleteFor(String uniqueId) {
         return template.insert(event.setData(uniqueId, true, null), getTableName());
+    }
+
+    public long countFor(String uniqueId) {
+        return template.count(getQueryById(uniqueId), event.getClass(), getTableName());
     }
 
     public String getTableName() {
