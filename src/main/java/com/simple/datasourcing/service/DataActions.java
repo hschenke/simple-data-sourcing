@@ -13,8 +13,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.*;
 public class DataActions<T> {
 
     private final Class<T> clazz;
-    private final DataEvent<T> event;
-    private final MongoTemplate template;
+    final DataEvent<T> event;
+    final MongoTemplate template;
     @Getter
     private final String tableName;
 
@@ -23,12 +23,11 @@ public class DataActions<T> {
         this.tableName = clazz.getSimpleName();
         var factory = new SimpleMongoClientDatabaseFactory(mongoUri);
         template = new MongoTemplate(factory);
-        template.createCollection(getTableName());
-        //template.createCollection(getTableName() + "-history");
+        template.createCollection(tableName);
         event = DataEvent.create();
     }
 
-    private Query getQueryById(Object value) {
+    Query getQueryById(Object value) {
         return new Query()
                 .addCriteria(where("uniqueId").is(value));
     }
@@ -40,37 +39,37 @@ public class DataActions<T> {
     }
 
     @SuppressWarnings("unchecked")
-    private List<DataEvent<T>> findById(Object value) {
-        return (List<DataEvent<T>>) template.find(getQueryById(value), event.getClass(), getTableName());
+    List<DataEvent<T>> findById(Object value) {
+        return (List<DataEvent<T>>) template.find(getQueryById(value), event.getClass(), tableName);
     }
 
     public List<T> getAllFor(String uniqueId) {
-        return findById(uniqueId).stream().map(DataEvent::getData).toList();
+        return isDeleted(uniqueId) ? List.of() : findById(uniqueId).stream().map(DataEvent::getData).toList();
     }
 
     public T getLastFor(String uniqueId) {
         return Optional.ofNullable(
-                        template.findOne(getQueryLastById(uniqueId), DataEvent.class, getTableName())
+                        template.findOne(getQueryLastById(uniqueId), DataEvent.class, tableName)
                 )
                 .map(de -> clazz.cast(de.getData()))
                 .orElse(null);
     }
 
     public DataEvent<T> createFor(String uniqueId, T data) {
-        return template.insert(event.setData(uniqueId, false, data), getTableName());
+        return template.insert(event.setData(uniqueId, false, data), tableName);
     }
 
     public DataEvent<T> deleteFor(String uniqueId) {
-        return template.insert(event.setData(uniqueId, true, null), getTableName());
+        return template.insert(event.setData(uniqueId, true, null), tableName);
     }
 
     public long countFor(String uniqueId) {
-        return isDeleted(uniqueId) ? 0 : template.count(getQueryById(uniqueId), getTableName());
+        return isDeleted(uniqueId) ? 0 : template.count(getQueryById(uniqueId), tableName);
     }
 
     public boolean isDeleted(String uniqueId) {
         return Optional.ofNullable(
-                        template.findOne(getQueryLastById(uniqueId), DataEvent.class, getTableName())
+                        template.findOne(getQueryLastById(uniqueId), DataEvent.class, tableName)
                 )
                 .filter(DataEvent::isDeleted)
                 .isPresent();
