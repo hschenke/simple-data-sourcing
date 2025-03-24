@@ -20,6 +20,6 @@ public class MongoDataMaster implements DataMaster {
 
     @Override
     public <T> MongoDataActionsHistory<T> getDataActionsHistory(Class<T> clazz) {
-        return new MongoDataActionsHistory<>(getDataActions(clazz));
+        return new MongoDataActionsHistory<>(mongoDataTemplate, clazz);
     }
 }

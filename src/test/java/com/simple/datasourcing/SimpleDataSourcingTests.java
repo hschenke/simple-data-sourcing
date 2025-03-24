@@ -57,7 +57,7 @@ class SimpleDataSourcingTests {
         var da1 = dataMaster.getDataActions(TestData1.class);
         var da1H = dataMaster.getDataActionsHistory(TestData1.class);
 
-        assertThat(da1.getTableName()).isEqualTo(TestData1.class.getSimpleName());
+        assertThat(da1.getTableNameBase()).isEqualTo(TestData1.class.getSimpleName());
         assertThat(da1H.getTableName()).isEqualTo(TestData1.class.getSimpleName() + "-history");
 
         assertThat(da1.createFor(uniqueId, testData1)).isNotNull();

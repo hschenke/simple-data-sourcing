@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.query.*;
 
 import java.util.*;
 
-public interface DataActions<T> extends DataActionsDefault<T> {
+public interface DataActions<T> extends DataActionsBase<T> {
 
     default Query getQueryLastById(String uniqueId) {
         return getQueryById(uniqueId)
@@ -22,9 +22,8 @@ public interface DataActions<T> extends DataActionsDefault<T> {
         return insertBy(DataEvent.<T>create().setData(uniqueId, false, data));
     }
 
-    @Override
     default List<T> getAllFor(String uniqueId) {
-        return isDeleted(uniqueId) ? List.of() : findAllBy(uniqueId).stream().map(DataEvent::getData).toList();
+        return isDeleted(uniqueId) ? List.of() : findAllBy(uniqueId);
     }
 
     default T getLastFor(String uniqueId) {
@@ -33,9 +32,8 @@ public interface DataActions<T> extends DataActionsDefault<T> {
                 .orElse(null);
     }
 
-    @Override
     default long countFor(String uniqueId) {
-        return isDeleted(uniqueId) ? 0 : countBy(uniqueId);
+        return isDeleted(uniqueId) ? 0 : countBy(uniqueId, getTableName());
     }
 
     default DataEvent<T> deleteFor(String uniqueId) {
