@@ -1,6 +1,6 @@
 package com.simple.datasourcing;
 
-import com.simple.datasourcing.service.*;
+import com.simple.datasourcing.mongo.*;
 import lombok.extern.slf4j.*;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.testcontainers.service.connection.*;
@@ -17,14 +17,14 @@ class SimpleDataSourcingTests {
 
     @ServiceConnection
     static MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:latest"));
-    static DataCon dataCon;
+    static MongoDataMaster dataMaster;
     static String uniqueId;
     static String uniqueIdNext;
 
     @BeforeAll
     static void beforeAll() {
         mongoDBContainer.start();
-        dataCon = new DataCon(mongoDBContainer.getReplicaSetUrl());
+        dataMaster = new MongoDataMaster(mongoDBContainer.getReplicaSetUrl());
         uniqueId = "holli";
         uniqueIdNext = "holli-next";
     }
@@ -46,15 +46,14 @@ class SimpleDataSourcingTests {
 
     @AfterEach
     void afterEach() {
-        dataCon.getTemplate().remove(new Query(), TestData1.class.getSimpleName());
-        dataCon.getTemplate().remove(new Query(), TestData2.class.getSimpleName());
-        dataCon.getTemplate().remove(new Query(), TestData3.class.getSimpleName());
-        dataCon.getTemplate().remove(new Query(), TestData1.class.getSimpleName() + "-history");
+        dataMaster.getMongoDataTemplate().remove(new Query(), TestData1.class.getSimpleName());
+        dataMaster.getMongoDataTemplate().remove(new Query(), TestData2.class.getSimpleName());
+        dataMaster.getMongoDataTemplate().remove(new Query(), TestData3.class.getSimpleName());
+        dataMaster.getMongoDataTemplate().remove(new Query(), TestData1.class.getSimpleName() + "-history");
     }
 
     @Test
     void dataMasterTest() {
-        var dataMaster = new DataMaster(mongoDBContainer.getReplicaSetUrl());
         var da1 = dataMaster.getDataActions(TestData1.class);
         var da1H = dataMaster.getDataActionsHistory(TestData1.class);
 
@@ -64,7 +63,7 @@ class SimpleDataSourcingTests {
         assertThat(da1.createFor(uniqueId, testData1)).isNotNull();
         assertThat(da1.createFor(uniqueId, testData1_2)).isNotNull();
         assertThat(da1.createFor(uniqueIdNext, testData1_next)).isNotNull();
-        assertThat(dataMaster.getDataCon().getTemplate().count(new Query(), TestData1.class.getSimpleName())).isEqualTo(3);
+        assertThat(dataMaster.getMongoDataTemplate().count(new Query(), TestData1.class.getSimpleName())).isEqualTo(3);
         assertThat(da1.countFor(uniqueId)).isEqualTo(2);
         assertThat(da1.getAllFor(uniqueId)).hasSize(2).isEqualTo(List.of(testData1, testData1_2));
         assertThat(da1.getLastFor(uniqueId)).isEqualTo(testData1_2);
@@ -80,15 +79,15 @@ class SimpleDataSourcingTests {
         assertThat(da1H.doFullHistory(uniqueId)).isTrue();
         assertThat(da1H.getAllFor(uniqueId)).hasSize(3);
         assertThat(da1H.countFor(uniqueId)).isEqualTo(3);
-        assertThat(dataMaster.getDataCon().getTemplate().count(new Query(), TestData1.class.getSimpleName())).isEqualTo(1);
-        assertThat(da1H.removeFor(uniqueId).wasAcknowledged()).isTrue();
+        assertThat(dataMaster.getMongoDataTemplate().count(new Query(), TestData1.class.getSimpleName())).isEqualTo(1);
+        assertThat(da1H.removeFor(uniqueId)).isTrue();
         assertThat(da1H.countFor(uniqueId)).isEqualTo(0);
     }
 
     @Test
     void dataTests() {
-        var da2 = new DataActions<>(dataCon, TestData2.class);
-        var da3 = new DataActions<>(dataCon, TestData3.class);
+        var da2 = new MongoDataActions<>(dataMaster.getMongoDataTemplate(), TestData2.class);
+        var da3 = new MongoDataActions<>(dataMaster.getMongoDataTemplate(), TestData3.class);
 
         logLineAndDebug(da2.createFor(uniqueId, testData2));
         logDebug(da2.deleteFor(uniqueId));
