@@ -14,17 +14,17 @@ public class MongoDataActions<T> extends MongoDataActionsBase<T> implements Data
 
     @Override
     public String getTableName() {
-        return super.getTableNameBase();
+        return getTableNameBase();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public DataEvent<T> findLastBy(String uniqueId) {
-        return super.getMongo().findOne(getQueryLastById(uniqueId), DataEvent.create().getClass(), getTableName());
+        return getMongo().findOne(getQueryLastById(uniqueId), DataEvent.create().getClass(), getTableName());
     }
 
     @Override
     public DataEvent<T> insertBy(DataEvent<T> dataEvent) {
-        return super.getMongo().insert(dataEvent, getTableName());
+        return getMongo().insert(dataEvent, getTableName());
     }
 }

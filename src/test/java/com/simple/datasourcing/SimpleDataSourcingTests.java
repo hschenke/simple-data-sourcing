@@ -35,6 +35,11 @@ class SimpleDataSourcingTests {
     TestData2 testData2;
     TestData3 testData3;
 
+    MongoDataActions<TestData1> da1;
+    MongoDataActionsHistory<TestData1> da1H;
+    MongoDataActions<TestData2> da2;
+    MongoDataActions<TestData3> da3;
+
     @BeforeEach
     void beforeEach() {
         testData1 = new TestData1("id-1-1", "name-1-1", 1.1);
@@ -42,28 +47,31 @@ class SimpleDataSourcingTests {
         testData1_next = new TestData1("id-1-1-next", "name-1-1", 1.19);
         testData2 = new TestData2("id-2-1-last", "name-2-1", 2.1);
         testData3 = new TestData3("id-3-1", List.of(testData1, testData1_2));
+
+        da1 = dataMaster.getDataActions(TestData1.class);
+        da1H = dataMaster.getDataActionsHistory(TestData1.class);
+
+        da2 = new MongoDataActions<>(dataMaster.getDataTemplate(), TestData2.class);
+        da3 = new MongoDataActions<>(dataMaster.getDataTemplate(), TestData3.class);
     }
 
     @AfterEach
     void afterEach() {
-        dataMaster.getMongoDataTemplate().remove(new Query(), TestData1.class.getSimpleName());
-        dataMaster.getMongoDataTemplate().remove(new Query(), TestData2.class.getSimpleName());
-        dataMaster.getMongoDataTemplate().remove(new Query(), TestData3.class.getSimpleName());
-        dataMaster.getMongoDataTemplate().remove(new Query(), TestData1.class.getSimpleName() + "-history");
+        da1.truncate();
+        da1H.truncate();
+        da2.truncate();
+        da3.truncate();
     }
 
     @Test
     void dataMasterTest() {
-        var da1 = dataMaster.getDataActions(TestData1.class);
-        var da1H = dataMaster.getDataActionsHistory(TestData1.class);
-
-        assertThat(da1.getTableNameBase()).isEqualTo(TestData1.class.getSimpleName());
-        assertThat(da1H.getTableName()).isEqualTo(TestData1.class.getSimpleName() + "-history");
+        assertThat(da1.getTableName()).isEqualTo(TestData1.class.getSimpleName());
+        assertThat(da1H.getTableName()).isEqualTo(da1H.getTableNameHistory());
 
         assertThat(da1.createFor(uniqueId, testData1)).isNotNull();
         assertThat(da1.createFor(uniqueId, testData1_2)).isNotNull();
         assertThat(da1.createFor(uniqueIdNext, testData1_next)).isNotNull();
-        assertThat(dataMaster.getMongoDataTemplate().count(new Query(), TestData1.class.getSimpleName())).isEqualTo(3);
+        assertThat(dataMaster.getDataTemplate().count(new Query(), TestData1.class.getSimpleName())).isEqualTo(3);
         assertThat(da1.countFor(uniqueId)).isEqualTo(2);
         assertThat(da1.getAllFor(uniqueId)).hasSize(2).isEqualTo(List.of(testData1, testData1_2));
         assertThat(da1.getLastFor(uniqueId)).isEqualTo(testData1_2);
@@ -79,16 +87,13 @@ class SimpleDataSourcingTests {
         assertThat(da1H.doFullHistory(uniqueId)).isTrue();
         assertThat(da1H.getAllFor(uniqueId)).hasSize(3);
         assertThat(da1H.countFor(uniqueId)).isEqualTo(3);
-        assertThat(dataMaster.getMongoDataTemplate().count(new Query(), TestData1.class.getSimpleName())).isEqualTo(1);
+        assertThat(dataMaster.getDataTemplate().count(new Query(), TestData1.class.getSimpleName())).isEqualTo(1);
         assertThat(da1H.removeFor(uniqueId)).isTrue();
         assertThat(da1H.countFor(uniqueId)).isEqualTo(0);
     }
 
     @Test
     void dataTests() {
-        var da2 = new MongoDataActions<>(dataMaster.getMongoDataTemplate(), TestData2.class);
-        var da3 = new MongoDataActions<>(dataMaster.getMongoDataTemplate(), TestData3.class);
-
         logLineAndDebug(da2.createFor(uniqueId, testData2));
         logDebug(da2.deleteFor(uniqueId));
 

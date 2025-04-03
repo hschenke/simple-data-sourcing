@@ -16,6 +16,12 @@ public interface DataActionsBase<T> {
                 .addCriteria(where("uniqueId").is(uniqueId));
     }
 
+    default boolean truncate() {
+        return truncate(getTableName());
+    }
+
+    boolean truncate(String tableName);
+
     List<DataEvent<T>> findAllBy(String uniqueId, String tableName);
 
     default List<T> findAllBy(String uniqueId) {
