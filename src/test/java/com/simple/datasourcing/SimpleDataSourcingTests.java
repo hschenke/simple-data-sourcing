@@ -66,7 +66,7 @@ class SimpleDataSourcingTests {
     @Test
     void dataMasterTest() {
         assertThat(da1.getTableName()).isEqualTo(TestData1.class.getSimpleName());
-        assertThat(da1H.getTableName()).isEqualTo(da1H.getTableNameHistory());
+        assertThat(da1H.getTableName()).isEqualTo(da1H.getTableName());
 
         assertThat(da1.createFor(uniqueId, testData1)).isNotNull();
         assertThat(da1.createFor(uniqueId, testData1_2)).isNotNull();

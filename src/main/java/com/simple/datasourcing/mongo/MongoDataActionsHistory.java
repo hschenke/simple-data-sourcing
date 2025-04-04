@@ -1,9 +1,11 @@
 package com.simple.datasourcing.mongo;
 
-import com.simple.datasourcing.interfaces.*;
+import com.simple.datasourcing.contracts.*;
 import lombok.*;
 import lombok.extern.slf4j.*;
 import org.springframework.data.mongodb.core.*;
+
+import java.util.*;
 
 @Slf4j
 @Getter
@@ -19,12 +21,27 @@ public class MongoDataActionsHistory<T> extends MongoDataActionsBase<T> implemen
     }
 
     @Override
+    public boolean truncate() {
+        return false;
+    }
+
+    @Override
+    public List<T> getAllFor(String uniqueId) {
+        return findAllBy(uniqueId, getTableNameHistory());
+    }
+
+    @Override
+    public long countFor(String uniqueId) {
+        return countBy(uniqueId, getTableNameHistory());
+    }
+
+    @Override
     public boolean doFullHistory(String uniqueId) {
         try {
-            var bulkOpsHistory = getMongo().bulkOps(BulkOperations.BulkMode.ORDERED, this.getTableName());
-            bulkOpsHistory.insert(findAllBy(uniqueId, getTableNameBase()));
+            var bulkOpsHistory = getDataTemplate().bulkOps(BulkOperations.BulkMode.ORDERED, getTableNameHistory());
+            bulkOpsHistory.insert(findAllEventsBy(uniqueId, getTableNameBase()));
             bulkOpsHistory.execute();
-            var bulkOps = getMongo().bulkOps(BulkOperations.BulkMode.UNORDERED, getTableNameBase());
+            var bulkOps = getDataTemplate().bulkOps(BulkOperations.BulkMode.UNORDERED, getTableNameBase());
             bulkOps.remove(getQueryById(uniqueId));
             bulkOps.execute();
             return true;
@@ -36,6 +53,6 @@ public class MongoDataActionsHistory<T> extends MongoDataActionsBase<T> implemen
 
     @Override
     public boolean removeFor(String uniqueId) {
-        return getMongo().remove(getQueryById(uniqueId), this.getTableName()).wasAcknowledged();
+        return getDataTemplate().remove(getQueryById(uniqueId), getTableNameHistory()).wasAcknowledged();
     }
 }

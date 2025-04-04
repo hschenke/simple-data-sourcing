@@ -1,46 +1,69 @@
 package com.simple.datasourcing.mongo;
 
-import com.simple.datasourcing.interfaces.*;
+import com.simple.datasourcing.contracts.*;
 import com.simple.datasourcing.model.*;
-import lombok.*;
 import lombok.extern.slf4j.*;
+import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.*;
 import org.springframework.data.mongodb.core.query.*;
 
 import java.util.*;
 
-@Getter
-@Slf4j
-public abstract class MongoDataActionsBase<T> implements DataActionsBase<T> {
+import static org.springframework.data.mongodb.core.query.Criteria.*;
 
-    private final MongoTemplate mongo;
-    private final String tableNameBase;
-    private final String tableNameHistory;
+@Slf4j
+public class MongoDataActionsBase<T> extends DataActionsBase<T, MongoTemplate, Query> {
 
     public MongoDataActionsBase(MongoTemplate mongo, Class<T> clazz) {
-        this.mongo = mongo;
-        this.tableNameBase = getTableNameBase(clazz);
-        this.tableNameHistory = getTableNameHistory(clazz);
-        mongo.createCollection(tableNameBase);
-        mongo.createCollection(tableNameHistory);
+        super(mongo, clazz);
     }
 
     @Override
-    public boolean truncate(String tableName) {
+    protected void createTables(MongoTemplate mongo, Class<T> clazz) {
+        mongo.createCollection(getTableNameBase());
+        mongo.createCollection(getTableNameHistory());
+    }
+
+    @Override
+    protected Query getQueryById(String uniqueId) {
+        return new Query()
+                .addCriteria(where("uniqueId").is(uniqueId));
+    }
+
+    @Override
+    protected Query getQueryLastById(String uniqueId) {
+        return getQueryById(uniqueId)
+                .with(Sort.by(Sort.Direction.DESC, "timestamp"))
+                .limit(1);
+    }
+
+    @Override
+    protected boolean truncate(String tableName) {
         log.info("Truncating table {}", tableName);
-        return mongo.remove(new Query(), tableName).wasAcknowledged();
+        return getDataTemplate().remove(new Query(), tableName).wasAcknowledged();
     }
 
-    @Override
     @SuppressWarnings("unchecked")
-    public List<DataEvent<T>> findAllBy(String uniqueId, String tableName) {
+    @Override
+    protected List<DataEvent<T>> findAllEventsBy(String uniqueId, String tableName) {
         log.info("Finding all in {} by uniqueId {}", tableName, uniqueId);
-        return (List<DataEvent<T>>) mongo.find(getQueryById(uniqueId), DataEvent.create().getClass(), tableName);
+        return (List<DataEvent<T>>) getDataTemplate().find(getQueryById(uniqueId), DataEvent.create().getClass(), tableName);
     }
 
     @Override
-    public long countBy(String uniqueId, String tableName) {
+    protected long countBy(String uniqueId, String tableName) {
         log.info("Counting {} by uniqueId {}", tableName, uniqueId);
-        return mongo.count(getQueryById(uniqueId), tableName);
+        return getDataTemplate().count(getQueryById(uniqueId), tableName);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected DataEvent<T> findLastBy(String uniqueId) {
+        return getDataTemplate().findOne(getQueryLastById(uniqueId), DataEvent.create().getClass(), getTableNameBase());
+    }
+
+    @Override
+    protected DataEvent<T> insertBy(DataEvent<T> dataEvent) {
+        return getDataTemplate().insert(dataEvent, getTableNameBase());
     }
 }

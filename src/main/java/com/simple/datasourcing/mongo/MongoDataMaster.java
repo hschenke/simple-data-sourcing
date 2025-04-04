@@ -1,6 +1,6 @@
 package com.simple.datasourcing.mongo;
 
-import com.simple.datasourcing.interfaces.*;
+import com.simple.datasourcing.contracts.*;
 import org.springframework.data.mongodb.core.*;
 
 import java.util.*;
