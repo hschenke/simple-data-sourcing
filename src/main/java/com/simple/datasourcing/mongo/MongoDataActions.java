@@ -26,35 +26,31 @@ public class MongoDataActions<T> extends MongoDataActionsBase<T> implements Data
 
     @Override
     public DataEvent<T> createFor(String uniqueId, T data) {
-        return insertBy(DataEvent.<T>create().setData(uniqueId, false, data));
+        return createBy(uniqueId, data);
     }
 
     @Override
     public List<T> getAllFor(String uniqueId) {
-        return isDeleted(uniqueId) ? List.of() : findAllBy(uniqueId, getTableName());
+        return getAllBaseBy(uniqueId);
     }
 
     @Override
     public T getLastFor(String uniqueId) {
-        return Optional.ofNullable(findLastBy(uniqueId))
-                .map(DataEvent::getData)
-                .orElse(null);
+        return getLastBy(uniqueId);
     }
 
     @Override
     public long countFor(String uniqueId) {
-        return isDeleted(uniqueId) ? 0 : countBy(uniqueId, getTableName());
+        return countBaseBy(uniqueId);
     }
 
     @Override
     public DataEvent<T> deleteFor(String uniqueId) {
-        return insertBy(DataEvent.<T>create().setData(uniqueId, true, null));
+        return deleteBy(uniqueId);
     }
 
     @Override
     public boolean isDeleted(String uniqueId) {
-        return Optional.ofNullable(findLastBy(uniqueId))
-                .map(DataEvent::isDeleted)
-                .orElse(false);
+        return isDeletedBy(uniqueId);
     }
 }

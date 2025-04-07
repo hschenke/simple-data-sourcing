@@ -14,14 +14,16 @@ import static org.springframework.data.mongodb.core.query.Criteria.*;
 @Slf4j
 public class MongoDataActionsBase<T> extends DataActionsBase<T, MongoTemplate, Query> {
 
-    public MongoDataActionsBase(MongoTemplate mongo, Class<T> clazz) {
-        super(mongo, clazz);
+    public MongoDataActionsBase(MongoTemplate dataTemplate, Class<T> clazz) {
+        super(dataTemplate, clazz);
     }
 
     @Override
-    protected void createTables(MongoTemplate mongo, Class<T> clazz) {
-        mongo.createCollection(getTableNameBase());
-        mongo.createCollection(getTableNameHistory());
+    protected void createTables() {
+        getDataTemplate().createCollection(getTableNameBase());
+        setBaseTableExists();
+        getDataTemplate().createCollection(getTableNameHistory());
+        setHistoryTableExists();
     }
 
     @Override
@@ -46,13 +48,11 @@ public class MongoDataActionsBase<T> extends DataActionsBase<T, MongoTemplate, Q
     @SuppressWarnings("unchecked")
     @Override
     protected List<DataEvent<T>> findAllEventsBy(String uniqueId, String tableName) {
-        log.info("Finding all in {} by uniqueId {}", tableName, uniqueId);
         return (List<DataEvent<T>>) getDataTemplate().find(getQueryById(uniqueId), DataEvent.create().getClass(), tableName);
     }
 
     @Override
     protected long countBy(String uniqueId, String tableName) {
-        log.info("Counting {} by uniqueId {}", tableName, uniqueId);
         return getDataTemplate().count(getQueryById(uniqueId), tableName);
     }
 
