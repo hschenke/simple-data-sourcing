@@ -9,10 +9,10 @@ import java.util.*;
 
 @Slf4j
 @Getter
-public class MongoDataActionsHistory<T> extends MongoDataActionsBase<T> implements DataActionsHistory<T> {
+public class MongoDataActionsHistory<T> extends MongoDataActions<T> implements DataActionsHistory<T> {
 
-    public MongoDataActionsHistory(MongoTemplate mongo, Class<T> clazz) {
-        super(mongo, clazz);
+    public MongoDataActionsHistory(MongoDataActions<T> base) {
+        super(base.getDataTemplate(), base.getClazz());
     }
 
     @Override

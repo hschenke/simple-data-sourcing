@@ -2,68 +2,54 @@ package com.simple.datasourcing.mongo;
 
 import com.simple.datasourcing.contracts.*;
 import com.simple.datasourcing.model.*;
-import lombok.extern.slf4j.*;
-import org.springframework.data.domain.*;
-import org.springframework.data.mongodb.core.*;
-import org.springframework.data.mongodb.core.query.*;
+import lombok.*;
 
 import java.util.*;
 
-import static org.springframework.data.mongodb.core.query.Criteria.*;
+@Getter
+public class MongoDataActionsBase<T> extends MongoDataActions<T> implements DataActionsBase<T> {
 
-@Slf4j
-public class MongoDataActionsBase<T> extends DataActionsBase<T, MongoTemplate, Query> {
-
-    public MongoDataActionsBase(MongoTemplate dataTemplate, Class<T> clazz) {
-        super(dataTemplate, clazz);
+    public MongoDataActionsBase(MongoDataActions<T> mongoDataActions) {
+        super(mongoDataActions.getDataTemplate(), mongoDataActions.getClazz());
     }
 
     @Override
-    protected void createTables() {
-        getDataTemplate().createCollection(getTableNameBase());
-        setBaseTableExists();
-        getDataTemplate().createCollection(getTableNameHistory());
-        setHistoryTableExists();
+    public String getTableName() {
+        return getTableNameBase();
     }
 
     @Override
-    protected Query getQueryById(String uniqueId) {
-        return new Query()
-                .addCriteria(where("uniqueId").is(uniqueId));
+    public boolean truncate() {
+        return truncate(getTableName());
     }
 
     @Override
-    protected Query getQueryLastById(String uniqueId) {
-        return getQueryById(uniqueId)
-                .with(Sort.by(Sort.Direction.DESC, "timestamp"))
-                .limit(1);
+    public DataEvent<T> createFor(String uniqueId, T data) {
+        return createBy(uniqueId, data);
     }
 
     @Override
-    protected boolean truncate(String tableName) {
-        log.info("Truncating table {}", tableName);
-        return getDataTemplate().remove(new Query(), tableName).wasAcknowledged();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    protected List<DataEvent<T>> findAllEventsBy(String uniqueId, String tableName) {
-        return (List<DataEvent<T>>) getDataTemplate().find(getQueryById(uniqueId), DataEvent.create().getClass(), tableName);
+    public List<T> getAllFor(String uniqueId) {
+        return getAllBaseBy(uniqueId);
     }
 
     @Override
-    protected long countBy(String uniqueId, String tableName) {
-        return getDataTemplate().count(getQueryById(uniqueId), tableName);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    protected DataEvent<T> findLastBy(String uniqueId) {
-        return getDataTemplate().findOne(getQueryLastById(uniqueId), DataEvent.create().getClass(), getTableNameBase());
+    public T getLastFor(String uniqueId) {
+        return getLastBy(uniqueId);
     }
 
     @Override
-    protected DataEvent<T> insertBy(DataEvent<T> dataEvent) {
-        return getDataTemplate().insert(dataEvent, getTableNameBase());
+    public long countFor(String uniqueId) {
+        return countBaseBy(uniqueId);
+    }
+
+    @Override
+    public DataEvent<T> deleteFor(String uniqueId) {
+        return deleteBy(uniqueId);
+    }
+
+    @Override
+    public boolean isDeleted(String uniqueId) {
+        return isDeletedBy(uniqueId);
     }
 }

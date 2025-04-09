@@ -3,33 +3,45 @@ package com.simple.datasourcing.mongo;
 import com.simple.datasourcing.contracts.*;
 import org.springframework.data.mongodb.core.*;
 
-import java.util.*;
+public class MongoDataMaster extends DataMaster<MongoTemplate> {
 
-public class MongoDataMaster implements DataMaster<MongoTemplate> {
-
-    private final MongoTemplate mongoDataTemplate;
-
-    public MongoDataMaster(String mongoUri) {
-        mongoDataTemplate = new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoUri));
+    private MongoDataMaster(String mongoUri) {
+        super(mongoUri);
     }
 
     @Override
-    public MongoTemplate getDataTemplate() {
-        return mongoDataTemplate;
+    protected MongoTemplate generateDbTemplate(String dbUri) {
+        return new MongoTemplate(new SimpleMongoClientDatabaseFactory(dbUri));
+    }
+
+    public static MongoDataMaster get(String mongoUri) {
+        return new MongoDataMaster(mongoUri);
     }
 
     @Override
-    public <T> MongoDataActions<T> getDataActions(Class<T> clazz) {
-        return new MongoDataActions<>(mongoDataTemplate, clazz);
+    public <T> MongoActions<T> actionsFor(Class<T> clazz) {
+        return new MongoActions<>(getDbTemplate(), clazz);
     }
 
-    @Override
-    public <T> MongoDataActionsHistory<T> getDataActionsHistory(Class<T> clazz) {
-        return new MongoDataActionsHistory<>(mongoDataTemplate, clazz);
-    }
+    public class MongoActions<T> extends Actions<T, MongoDataActions<T>> {
 
-    @Override
-    public <T> void initActionsFor(List<Class<T>> classes) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        public MongoActions(MongoTemplate dbTemplate, Class<T> clazz) {
+            super(dbTemplate, clazz);
+        }
+
+        @Override
+        protected MongoDataActions<T> generateDataActions(MongoTemplate dbTemplate, Class<T> clazz) {
+            return new MongoDataActions<>(dbTemplate, clazz);
+        }
+
+        @Override
+        public MongoDataActionsBase<T> getBase() {
+            return new MongoDataActionsBase<>(getDataActions());
+        }
+
+        @Override
+        public MongoDataActionsHistory<T> getHistory() {
+            return new MongoDataActionsHistory<>(getDataActions());
+        }
     }
 }

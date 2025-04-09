@@ -1,14 +1,33 @@
 package com.simple.datasourcing.contracts;
 
-import java.util.*;
+import lombok.*;
 
-public interface DataMaster<DT> {
+@Getter
+public abstract class DataMaster<DT> {
 
-    DT getDataTemplate();
+    private final DT dbTemplate;
 
-    <T> DataActions<T> getDataActions(Class<T> clazz);
+    public DataMaster(String dbUri) {
+        dbTemplate = generateDbTemplate(dbUri);
+    }
 
-    <T> DataActionsHistory<T> getDataActionsHistory(Class<T> clazz);
+    protected abstract DT generateDbTemplate(String dbUri);
 
-    <T> void initActionsFor(List<Class<T>> classes);
+    public abstract <T> Actions<T, ? extends DataActions<T, ?, ?>> actionsFor(Class<T> clazz);
+
+    @Getter
+    public abstract class Actions<T, DA extends DataActions<T, ?, ?>> {
+
+        private final DA dataActions;
+
+        public Actions(DT dbTemplate, Class<T> clazz) {
+            dataActions = generateDataActions(dbTemplate, clazz);
+        }
+
+        protected abstract DA generateDataActions(DT dbTemplate, Class<T> clazz);
+
+        public abstract DataActionsBase<T> getBase();
+
+        public abstract DataActionsHistory<T> getHistory();
+    }
 }
