@@ -18,6 +18,9 @@ public abstract class DataMaster<DT> {
     @Getter
     public abstract class Actions<T, DA extends DataActions<T, ?, ?>> {
 
+        public record AllActions<T>(DataActionsBase<T> actionsBase, DataActionsHistory<T> actionsHistory) {
+        }
+
         private final DA dataActions;
 
         public Actions(DT dbTemplate, Class<T> clazz) {
@@ -29,5 +32,8 @@ public abstract class DataMaster<DT> {
         public abstract DataActionsBase<T> getBase();
 
         public abstract DataActionsHistory<T> getHistory();
+
+        public abstract AllActions<T> getAll();
+
     }
 }

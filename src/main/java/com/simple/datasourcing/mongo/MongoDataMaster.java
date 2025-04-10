@@ -43,5 +43,10 @@ public class MongoDataMaster extends DataMaster<MongoTemplate> {
         public MongoDataActionsHistory<T> getHistory() {
             return new MongoDataActionsHistory<>(getDataActions());
         }
+
+        @Override
+        public AllActions<T> getAll() {
+            return new AllActions<>(getBase(), getHistory());
+        }
     }
 }
