@@ -23,25 +23,25 @@ public class MongoDataMaster extends DataMaster<MongoTemplate> {
         return new MongoActions<>(getDbTemplate(), clazz);
     }
 
-    public class MongoActions<T> extends Actions<T, MongoDataActions<T>> {
+    public class MongoActions<T> extends Actions<T, MongoDataService<T>> {
 
         public MongoActions(MongoTemplate dbTemplate, Class<T> clazz) {
             super(dbTemplate, clazz);
         }
 
         @Override
-        protected MongoDataActions<T> generateDataActions(MongoTemplate dbTemplate, Class<T> clazz) {
-            return new MongoDataActions<>(dbTemplate, clazz);
+        protected MongoDataService<T> generateDataActions(MongoTemplate dbTemplate, Class<T> clazz) {
+            return new MongoDataService<>(clazz, dbTemplate);
         }
 
         @Override
-        public MongoDataActionsBase<T> getBase() {
-            return new MongoDataActionsBase<>(getDataActions());
+        public MongoDataActions<T> getBase() {
+            return new MongoDataActions<>(getDataActions());
         }
 
         @Override
-        public MongoDataActionsHistory<T> getHistory() {
-            return new MongoDataActionsHistory<>(getDataActions());
+        public MongoDataActions<T>.History getHistory() {
+            return getBase().new History();
         }
 
         @Override

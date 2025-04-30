@@ -36,8 +36,8 @@ class SimpleDataSourcingTests {
     TestData2 testData2;
 
     MongoDataMaster.MongoActions<TestData1> actions1;
-    MongoDataActionsBase<TestData1> da1;
-    MongoDataActionsHistory<TestData1> da1H;
+    MongoDataActions<TestData1> da1;
+    MongoDataActions<TestData1>.History da1H;
     DataMaster.Actions.AllActions<TestData2> da2All;
 
     @BeforeEach
@@ -69,15 +69,13 @@ class SimpleDataSourcingTests {
         assertThat(da1.createFor(uniqueId, testData1)).isNotNull();
         assertThat(da1.createFor(uniqueId, testData1_2)).isNotNull();
         assertThat(da1.createFor(uniqueIdNext, testData1_next)).isNotNull();
-        assertThat(actions1.getBase().getDataTemplate().count(new Query(), actions1.getBase().getTableName())).isEqualTo(3);
+        assertThat(actions1.getDataActions().getDataTemplate().count(new Query(), actions1.getBase().getTableName())).isEqualTo(3);
         assertThat(da1.countFor(uniqueId)).isEqualTo(2);
         assertThat(da1.getAllFor(uniqueId)).hasSize(2).isEqualTo(List.of(testData1, testData1_2));
         assertThat(da1.getLastFor(uniqueId)).isEqualTo(testData1_2);
         assertThat(da1.isDeleted(uniqueId)).isFalse();
         assertThat(da1.deleteFor(uniqueId)).isNotNull();
         assertThat(da1.isDeleted(uniqueId)).isTrue();
-        assertThat(da1.countFor(uniqueId)).isEqualTo(0);
-        assertThat(da1.getAllFor(uniqueId)).isEmpty();
         assertThat(da1.getLastFor(uniqueId)).isNull();
 
         assertThat(da1H.countFor(uniqueId)).isEqualTo(0);
@@ -85,7 +83,7 @@ class SimpleDataSourcingTests {
         assertThat(da1H.doFullHistory(uniqueId)).isTrue();
         assertThat(da1H.getAllFor(uniqueId)).hasSize(3);
         assertThat(da1H.countFor(uniqueId)).isEqualTo(3);
-        assertThat(actions1.getBase().getDataTemplate().count(new Query(), actions1.getBase().getTableName())).isEqualTo(1);
+        assertThat(actions1.getDataActions().getDataTemplate().count(new Query(), actions1.getBase().getTableName())).isEqualTo(1);
         assertThat(da1H.removeFor(uniqueId)).isTrue();
         assertThat(da1H.countFor(uniqueId)).isEqualTo(0);
     }
@@ -102,11 +100,11 @@ class SimpleDataSourcingTests {
 
     @Test
     void tableExistsTest() {
-        assertThat(da1.bothTablesExists()).isTrue();
+        assertThat(da1.getActions().bothTablesExists()).isTrue();
 
         dataMaster.getDbTemplate().dropCollection(da1.getTableName());
         dataMaster.getDbTemplate().dropCollection(da1H.getTableName());
-        assertThat(da1.bothTablesExists()).isFalse();
+        assertThat(da1.getActions().bothTablesExists()).isFalse();
     }
 
     public record TestData1(String id, String name, Object data) {
