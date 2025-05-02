@@ -13,10 +13,10 @@ public abstract class DataMaster<DT> {
 
     protected abstract DT generateDbTemplate(String dbUri);
 
-    public abstract <T> Actions<T, ? extends DataActions<T, ?, ?>> actionsFor(Class<T> clazz);
+    public abstract <T> Actions<T, ? extends DataService<T, ?, ?>> actionsFor(Class<T> clazz);
 
     @Getter
-    public abstract class Actions<T, DA extends DataActions<T, ?, ?>> {
+    public abstract class Actions<T, DA extends DataService<T, ?, ?>> {
 
         public record AllActions<T>(DataActionsBase<T> actionsBase, DataActionsHistory<T> actionsHistory) {
         }

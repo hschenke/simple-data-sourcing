@@ -12,7 +12,7 @@ import java.util.*;
 import static org.springframework.data.mongodb.core.query.Criteria.*;
 
 @Slf4j
-public class MongoDataService<T> extends DataActions<T, MongoTemplate, Query> {
+public class MongoDataService<T> extends DataService<T, MongoTemplate, Query> {
 
     public MongoDataService(Class<T> clazz, MongoTemplate dataTemplate) {
         super(clazz, dataTemplate);
@@ -57,6 +57,33 @@ public class MongoDataService<T> extends DataActions<T, MongoTemplate, Query> {
     @Override
     protected long countBy(String uniqueId, String tableName) {
         return getDataTemplate().count(getQueryById(uniqueId), tableName);
+    }
+
+    @Override
+    protected boolean removeBy(String uniqueId, String tableName) {
+        return getDataTemplate().remove(getQueryById(uniqueId), getTableNameHistory()).wasAcknowledged();
+    }
+
+    @Override
+    protected boolean dataHistorization(String uniqueId, boolean includeDelete) {
+        try {
+            var bulkOpsHistory = getDataTemplate().bulkOps(BulkOperations.BulkMode.ORDERED, getTableNameHistory());
+            bulkOpsHistory.insert(
+                    findAllEventsBy(uniqueId, getTableNameBase()).stream()
+                            .filter(event -> includeDelete || !event.isDeleted())
+                            .toList()
+            );
+            bulkOpsHistory.execute();
+
+            var bulkOps = getDataTemplate().bulkOps(BulkOperations.BulkMode.UNORDERED, getTableNameBase());
+            bulkOps.remove(getQueryById(uniqueId));
+            bulkOps.execute();
+
+            return true;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return false;
+        }
     }
 
     @SuppressWarnings("unchecked")

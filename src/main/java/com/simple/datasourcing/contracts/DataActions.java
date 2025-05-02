@@ -8,74 +8,84 @@ import java.util.*;
 
 @Slf4j
 @Getter
-public abstract class DataActions<T, DT, Q> {
+public abstract class DataActions<T> implements DataActionsBase<T> {
 
-    private final DT dataTemplate;
-    private final Class<T> clazz;
-    private final String tableNameBase;
-    private final String tableNameHistory;
+    private final DataService<T, ?, ?> service;
 
-    protected DataActions(Class<T> clazz, DT dataTemplate) {
-        this.dataTemplate = dataTemplate;
-        this.clazz = clazz;
-        this.tableNameBase = clazz.getSimpleName();
-        this.tableNameHistory = tableNameBase + "-history";
-        if (!bothTablesExists()) {
-            log.info("Creating tables :: {} and {}", tableNameBase, tableNameHistory);
-            createTables();
-            if (!bothTablesExists()) throw new TablesNotExistException();
+    protected DataActions(DataService<T, ?, ?> service) {
+        this.service = service;
+    }
+
+    public class History implements DataActionsHistory<T> {
+
+        @Override
+        public String getTableName() {
+            return service.getTableNameHistory();
+        }
+
+        @Override
+        public boolean truncate() {
+            return false;
+        }
+
+        @Override
+        public List<T> getAllFor(String uniqueId) {
+            return service.findAllBy(uniqueId, service.getTableNameHistory());
+        }
+
+        @Override
+        public long countFor(String uniqueId) {
+            return service.countBy(uniqueId, service.getTableNameHistory());
+        }
+
+        @Override
+        public boolean dataHistorization(String uniqueId, boolean includeDelete) {
+            return service.dataHistorization(uniqueId, includeDelete);
+        }
+
+        @Override
+        public boolean removeFor(String uniqueId) {
+            return service.removeBy(uniqueId, service.getTableNameHistory());
         }
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean bothTablesExists() {
-        return tableExists(tableNameBase) && tableExists(tableNameHistory);
+    @Override
+    public String getTableName() {
+        return service.getTableNameBase();
     }
 
-    protected abstract void createTables();
-
-    protected abstract Q getQueryById(String uniqueId);
-
-    protected abstract Q getQueryLastById(String uniqueId);
-
-    protected abstract boolean truncate(String tableName);
-
-    protected abstract List<DataEvent<T>> findAllEventsBy(String uniqueId, String tableName);
-
-    protected abstract boolean tableExists(String tableName);
-
-    protected abstract long countBy(String uniqueId, String tableName);
-
-    protected abstract DataEvent<T> findLastBy(String uniqueId);
-
-    protected abstract DataEvent<T> insertBy(DataEvent<T> dataEvent);
-
-    public List<T> findAllBy(String uniqueId, String tableName) {
-        log.info("Find all by id :: [{}] :: table :: [{}]", uniqueId, tableName);
-        return findAllEventsBy(uniqueId, tableName).stream().map(DataEvent::getData).toList();
+    @Override
+    public boolean truncate() {
+        return service.truncate(getTableName());
     }
 
-    public DataEvent<T> createBy(String uniqueId, T data) {
-        log.info("Insert data :: [{}] - {}", uniqueId, data);
-        return insertBy(DataEvent.<T>create().setData(uniqueId, false, data));
+    @Override
+    public DataEvent<T> createFor(String uniqueId, T data) {
+        return service.createBy(uniqueId, data);
     }
 
-    public T getLastBy(String uniqueId) {
-        log.info("Get last by id :: [{}]", uniqueId);
-        return Optional.ofNullable(findLastBy(uniqueId))
-                .map(DataEvent::getData)
-                .orElse(null);
+    @Override
+    public List<T> getAllFor(String uniqueId) {
+        return service.findAllBy(uniqueId, getTableName());
     }
 
-    public DataEvent<T> deleteBy(String uniqueId) {
-        log.info("Delete base by id :: [{}]", uniqueId);
-        return insertBy(DataEvent.<T>create().setData(uniqueId, true, null));
+    @Override
+    public T getLastFor(String uniqueId) {
+        return service.getLastBy(uniqueId);
     }
 
-    public boolean isDeletedBy(String uniqueId) {
-        log.info("Check deletion by :: [{}]", uniqueId);
-        return Optional.ofNullable(findLastBy(uniqueId))
-                .map(DataEvent::isDeleted)
-                .orElse(false);
+    @Override
+    public long countFor(String uniqueId) {
+        return service.countBy(uniqueId, getTableName());
+    }
+
+    @Override
+    public DataEvent<T> deleteFor(String uniqueId) {
+        return service.deleteBy(uniqueId);
+    }
+
+    @Override
+    public boolean isDeleted(String uniqueId) {
+        return service.isDeletedBy(uniqueId);
     }
 }

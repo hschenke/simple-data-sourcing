@@ -73,14 +73,15 @@ class SimpleDataSourcingTests {
         assertThat(da1.countFor(uniqueId)).isEqualTo(2);
         assertThat(da1.getAllFor(uniqueId)).hasSize(2).isEqualTo(List.of(testData1, testData1_2));
         assertThat(da1.getLastFor(uniqueId)).isEqualTo(testData1_2);
+
         assertThat(da1.isDeleted(uniqueId)).isFalse();
+        assertThat(da1H.countFor(uniqueId)).isEqualTo(0);
         assertThat(da1.deleteFor(uniqueId)).isNotNull();
         assertThat(da1.isDeleted(uniqueId)).isTrue();
         assertThat(da1.getLastFor(uniqueId)).isNull();
+        assertThat(da1H.countFor(uniqueId)).isEqualTo(2);
 
-        assertThat(da1H.countFor(uniqueId)).isEqualTo(0);
-        assertThat(da1H.getAllFor(uniqueId)).isEmpty();
-        assertThat(da1H.doFullHistory(uniqueId)).isTrue();
+        assertThat(da1H.dataHistorization(uniqueId, true)).isTrue();
         assertThat(da1H.getAllFor(uniqueId)).hasSize(3);
         assertThat(da1H.countFor(uniqueId)).isEqualTo(3);
         assertThat(actions1.getDataActions().getDataTemplate().count(new Query(), actions1.getBase().getTableName())).isEqualTo(1);
@@ -93,18 +94,18 @@ class SimpleDataSourcingTests {
         assertThat(da2All.actionsBase().createFor(uniqueId, testData2)).isNotNull();
         assertThat(da2All.actionsBase().countFor(uniqueId)).isEqualTo(1);
         assertThat(da2All.actionsHistory().countFor(uniqueId)).isEqualTo(0);
-        assertThat(da2All.actionsHistory().doFullHistory(uniqueId)).isTrue();
+        assertThat(da2All.actionsHistory().dataHistorization(uniqueId, true)).isTrue();
         assertThat(da2All.actionsHistory().countFor(uniqueId)).isEqualTo(1);
         assertThat(da2All.actionsBase().countFor(uniqueId)).isEqualTo(0);
     }
 
     @Test
     void tableExistsTest() {
-        assertThat(da1.getActions().bothTablesExists()).isTrue();
+        assertThat(da1.getService().bothTablesExists()).isTrue();
 
         dataMaster.getDbTemplate().dropCollection(da1.getTableName());
         dataMaster.getDbTemplate().dropCollection(da1H.getTableName());
-        assertThat(da1.getActions().bothTablesExists()).isFalse();
+        assertThat(da1.getService().bothTablesExists()).isFalse();
     }
 
     public record TestData1(String id, String name, Object data) {
