@@ -8,15 +8,15 @@ import java.util.*;
 
 @Slf4j
 @Getter
-public abstract class DataService<T, DT, Q> {
+public abstract class DataService<T, DT, Q> implements DataServiceActions<T, Q> {
 
-    private final DT dataTemplate;
+    private final DataConnection<DT> dataConnection;
     private final Class<T> clazz;
     private final String tableNameBase;
     private final String tableNameHistory;
 
-    protected DataService(Class<T> clazz, DT dataTemplate) {
-        this.dataTemplate = dataTemplate;
+    protected DataService(DataConnection<DT> dataConnection, Class<T> clazz) {
+        this.dataConnection = dataConnection;
         this.clazz = clazz;
         this.tableNameBase = clazz.getSimpleName();
         this.tableNameHistory = tableNameBase + "-history";
@@ -27,32 +27,14 @@ public abstract class DataService<T, DT, Q> {
         }
     }
 
+    public DT dataTemplate() {
+        return dataConnection.getDataTemplate();
+    }
+
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean bothTablesExists() {
         return tableExists(tableNameBase) && tableExists(tableNameHistory);
     }
-
-    protected abstract void createTables();
-
-    protected abstract Q getQueryById(String uniqueId);
-
-    protected abstract Q getQueryLastById(String uniqueId);
-
-    protected abstract boolean truncate(String tableName);
-
-    protected abstract List<DataEvent<T>> findAllEventsBy(String uniqueId, String tableName);
-
-    protected abstract boolean tableExists(String tableName);
-
-    protected abstract long countBy(String uniqueId, String tableName);
-
-    protected abstract boolean removeBy(String uniqueId, String tableName);
-
-    protected abstract boolean dataHistorization(String uniqueId, boolean includeDelete);
-
-    protected abstract DataEvent<T> findLastBy(String uniqueId);
-
-    protected abstract DataEvent<T> insertBy(DataEvent<T> dataEvent);
 
     public List<T> findAllBy(String uniqueId, String tableName) {
         log.info("Find all by id :: [{}] :: table :: [{}]", uniqueId, tableName);
