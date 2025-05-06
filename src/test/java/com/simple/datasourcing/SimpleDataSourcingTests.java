@@ -16,14 +16,14 @@ class SimpleDataSourcingTests {
 
     @ServiceConnection
     static MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:latest"));
-    static MongoDataConnection connection;
+    static MongoDataMaster dataMaster;
     static String uniqueId;
     static String uniqueIdNext;
 
     @BeforeAll
     static void beforeAll() {
         mongoDBContainer.start();
-        connection = new MongoDataConnection(mongoDBContainer.getReplicaSetUrl());
+        dataMaster = new MongoDataMaster(mongoDBContainer.getReplicaSetUrl());
         uniqueId = "holli";
         uniqueIdNext = "holli-next";
     }
@@ -43,7 +43,7 @@ class SimpleDataSourcingTests {
         testData1_next = new TestData1("id-1-1-next", "name-1-1", 1.19);
         testData2 = new TestData2("id-2-1", List.of(testData1, testData1_2));
 
-        da1 = new MongoDataActions<>(new MongoDataService<>(connection, TestData1.class));
+        da1 = dataMaster.getDataActions(TestData1.class);
         da1History = da1.new History();
     }
 
@@ -81,7 +81,7 @@ class SimpleDataSourcingTests {
 
     @Test
     void dataAllActionsTest() {
-        var da2 = new MongoDataActions<>(new MongoDataService<>(connection, TestData2.class));
+        var da2 = dataMaster.getDataActions(TestData2.class);
         assertThat(da2.createFor(uniqueId, testData2)).isNotNull();
         assertThat(da2.countFor(uniqueId)).isEqualTo(1);
         assertThat(da2.history().countFor(uniqueId)).isEqualTo(0);
