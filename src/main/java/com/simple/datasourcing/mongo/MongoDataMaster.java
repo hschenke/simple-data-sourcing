@@ -13,13 +13,13 @@ public class MongoDataMaster extends DataMaster {
     }
 
     @Override
-    protected MongoDataConnection getDataConnection() {
+    protected MongoDataConnection generateDataConnection() {
         return new MongoDataConnection(getDbUri());
     }
 
     @Override
     protected <T> MongoDataService<T> getDataService(Class<T> clazz) {
-        return new MongoDataService<>(getDataConnection(), clazz);
+        return new MongoDataService<>(generateDataConnection(), clazz);
     }
 
     @Override

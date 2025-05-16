@@ -1,6 +1,5 @@
 package com.simple.datasourcing.contracts;
 
-import com.simple.datasourcing.model.*;
 import lombok.extern.slf4j.*;
 
 import java.util.*;
@@ -27,7 +26,7 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
     }
 
     @Override
-    public DataEvent<T> createFor(String uniqueId, T data) {
+    public boolean createFor(String uniqueId, T data) {
         return service.createBy(uniqueId, data);
     }
 
@@ -47,7 +46,7 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
     }
 
     @Override
-    public DataEvent<T> deleteFor(String uniqueId) {
+    public boolean deleteFor(String uniqueId) {
         return service.deleteBy(uniqueId);
     }
 
@@ -83,8 +82,8 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
         }
 
         @Override
-        public boolean dataHistorization(String uniqueId, boolean includeDelete) {
-            return service.dataHistorization(uniqueId, includeDelete);
+        public boolean dataHistorization(String uniqueId) {
+            return service.dataHistorization(uniqueId);
         }
 
         @Override

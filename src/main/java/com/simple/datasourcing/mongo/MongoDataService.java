@@ -55,24 +55,20 @@ public class MongoDataService<T> extends DataService<T, MongoTemplate, Query> {
     }
 
     @Override
-    public long countBy(String uniqueId, String tableName) {
+    public Long countBy(String uniqueId, String tableName) {
         return dataTemplate().count(getQueryById(uniqueId), tableName);
     }
 
     @Override
     public boolean removeBy(String uniqueId, String tableName) {
-        return dataTemplate().remove(getQueryById(uniqueId), getTableNameHistory()).wasAcknowledged();
+        return dataTemplate().remove(getQueryById(uniqueId), tableName).wasAcknowledged();
     }
 
     @Override
-    public boolean dataHistorization(String uniqueId, boolean includeDelete) {
+    public boolean dataHistorization(String uniqueId) {
         try {
             var bulkOpsHistory = dataTemplate().bulkOps(BulkOperations.BulkMode.ORDERED, getTableNameHistory());
-            bulkOpsHistory.insert(
-                    findAllEventsBy(uniqueId, getTableNameBase()).stream()
-                            .filter(event -> includeDelete || !event.isDeleted())
-                            .toList()
-            );
+            bulkOpsHistory.insert(findAllEventsBy(uniqueId, getTableNameBase()));
             bulkOpsHistory.execute();
 
             var bulkOps = dataTemplate().bulkOps(BulkOperations.BulkMode.UNORDERED, getTableNameBase());
@@ -93,7 +89,8 @@ public class MongoDataService<T> extends DataService<T, MongoTemplate, Query> {
     }
 
     @Override
-    public DataEvent<T> insertBy(DataEvent<T> dataEvent) {
-        return dataTemplate().insert(dataEvent, getTableNameBase());
+    public boolean insertBy(DataEvent<T> dataEvent) {
+        dataTemplate().insert(dataEvent, getTableNameBase());
+        return true;
     }
 }

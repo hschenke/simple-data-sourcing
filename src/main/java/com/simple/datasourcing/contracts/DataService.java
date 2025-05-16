@@ -18,8 +18,8 @@ public abstract class DataService<T, DT, Q> implements DataServiceActions<T, Q> 
     protected DataService(DataConnection<DT> dataConnection, Class<T> clazz) {
         this.dataConnection = dataConnection;
         this.clazz = clazz;
-        this.tableNameBase = clazz.getSimpleName();
-        this.tableNameHistory = tableNameBase + "-history";
+        this.tableNameBase = clazz.getSimpleName().toLowerCase();
+        this.tableNameHistory = tableNameBase + "_history";
         if (!bothTablesExists()) {
             log.info("Creating tables :: {} and {}", tableNameBase, tableNameHistory);
             createTables();
@@ -41,9 +41,9 @@ public abstract class DataService<T, DT, Q> implements DataServiceActions<T, Q> 
         return findAllEventsBy(uniqueId, tableName).stream().map(DataEvent::getData).toList();
     }
 
-    public DataEvent<T> createBy(String uniqueId, T data) {
+    public boolean createBy(String uniqueId, T data) {
         log.info("Insert data :: [{}] - {}", uniqueId, data);
-        return insertBy(DataEvent.<T>create().setData(uniqueId, false, data));
+        return insertBy(DataEvent.<T>create().setData(uniqueId, Boolean.FALSE, data));
     }
 
     public T getLastBy(String uniqueId) {
@@ -53,16 +53,17 @@ public abstract class DataService<T, DT, Q> implements DataServiceActions<T, Q> 
                 .orElse(null);
     }
 
-    public DataEvent<T> deleteBy(String uniqueId) {
+    public boolean deleteBy(String uniqueId) {
         log.info("Delete base by id :: [{}]", uniqueId);
-        dataHistorization(uniqueId, false);
-        return insertBy(DataEvent.<T>create().setData(uniqueId, true, null));
+        if(dataHistorization(uniqueId))
+            return insertBy(DataEvent.<T>create().setData(uniqueId, Boolean.TRUE, null));
+        return false;
     }
 
     public boolean isDeletedBy(String uniqueId) {
         log.info("Check deletion by :: [{}]", uniqueId);
         return Optional.ofNullable(findLastBy(uniqueId))
-                .map(DataEvent::isDeleted)
-                .orElse(false);
+                .map(DataEvent::getDeleted)
+                .orElse(Boolean.FALSE);
     }
 }

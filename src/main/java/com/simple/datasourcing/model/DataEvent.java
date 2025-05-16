@@ -1,18 +1,18 @@
 package com.simple.datasourcing.model;
 
-
 import lombok.*;
 
 import java.time.*;
 
-
 @Getter
 @Setter
 @ToString
+@Builder
+@AllArgsConstructor
 public class DataEvent<T> {
 
     private String uniqueId;
-    private boolean deleted;
+    private Boolean deleted;
     private LocalDateTime timestamp;
     private T data;
 
@@ -23,7 +23,7 @@ public class DataEvent<T> {
         return new DataEvent<>();
     }
 
-    public DataEvent<T> setData(String uniqueId, boolean deleted, T data) {
+    public DataEvent<T> setData(String uniqueId, Boolean deleted, T data) {
         this.uniqueId = uniqueId;
         this.deleted = deleted;
         this.data = data;

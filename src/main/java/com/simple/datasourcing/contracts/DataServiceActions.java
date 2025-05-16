@@ -18,13 +18,13 @@ public interface DataServiceActions<T, Q> {
 
     boolean tableExists(String tableName);
 
-    long countBy(String uniqueId, String tableName);
+    Long countBy(String uniqueId, String tableName);
 
     boolean removeBy(String uniqueId, String tableName);
 
-    boolean dataHistorization(String uniqueId, boolean includeDelete);
+    boolean dataHistorization(String uniqueId);
 
     DataEvent<T> findLastBy(String uniqueId);
 
-    DataEvent<T> insertBy(DataEvent<T> dataEvent);
+    boolean insertBy(DataEvent<T> dataEvent);
 }
