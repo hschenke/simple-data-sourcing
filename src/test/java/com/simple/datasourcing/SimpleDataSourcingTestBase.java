@@ -84,12 +84,14 @@ class SimpleDataSourcingTestBase {
     }
 
     void tableExistsTest(DataService<?, ?, ?> service, Consumer<String> dropTable) {
-        assertThat(service.bothTablesExists()).isTrue();
+        assertThat(service.tableExists(service.getTableNameBase())).isTrue();
+        assertThat(service.tableExists(service.getTableNameHistory())).isTrue();
 
         dropTable.accept(da1.getTableName());
         dropTable.accept(da1History.getTableName());
 
-        assertThat(service.bothTablesExists()).isFalse();
+        assertThat(service.tableExists(service.getTableNameBase())).isFalse();
+        assertThat(service.tableExists(service.getTableNameHistory())).isFalse();
     }
 
     public record TestData1(String id, String name, Object data) {

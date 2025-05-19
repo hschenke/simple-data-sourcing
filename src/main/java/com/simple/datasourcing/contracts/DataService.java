@@ -1,5 +1,6 @@
 package com.simple.datasourcing.contracts;
 
+import com.simple.datasourcing.error.*;
 import com.simple.datasourcing.model.*;
 import lombok.*;
 import lombok.extern.slf4j.*;
@@ -20,20 +21,17 @@ public abstract class DataService<T, DT, Q> implements DataServiceActions<T, Q> 
         this.clazz = clazz;
         this.tableNameBase = clazz.getSimpleName().toLowerCase();
         this.tableNameHistory = tableNameBase + "_history";
-        if (!bothTablesExists()) {
+        if (!tableExists(tableNameBase) || !tableExists(tableNameHistory)) {
             log.info("Creating tables :: {} and {}", tableNameBase, tableNameHistory);
-            createTables();
-            if (!bothTablesExists()) throw new TablesNotExistException();
+            createBaseTable();
+            if (!tableExists(tableNameBase)) throw new TableNotExistException(this.tableNameBase);
+            createHistoryTable();
+            if (!tableExists(tableNameHistory)) throw new TableNotExistException(this.tableNameHistory);
         }
     }
 
     public DT dataTemplate() {
         return dataConnection.getDataTemplate();
-    }
-
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean bothTablesExists() {
-        return tableExists(tableNameBase) && tableExists(tableNameHistory);
     }
 
     public List<T> findAllBy(String uniqueId, String tableName) {
@@ -55,7 +53,7 @@ public abstract class DataService<T, DT, Q> implements DataServiceActions<T, Q> 
 
     public boolean deleteBy(String uniqueId) {
         log.info("Delete base by id :: [{}]", uniqueId);
-        if(dataHistorization(uniqueId))
+        if (dataHistorization(uniqueId))
             return insertBy(DataEvent.<T>create().setData(uniqueId, Boolean.TRUE, null));
         return false;
     }

@@ -6,7 +6,9 @@ import java.util.*;
 
 public interface DataServiceActions<T, Q> {
 
-    void createTables();
+    void createBaseTable();
+
+    void createHistoryTable();
 
     Q getQueryById(String uniqueId);
 

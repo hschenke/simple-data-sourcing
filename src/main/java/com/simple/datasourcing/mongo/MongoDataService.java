@@ -19,8 +19,12 @@ public class MongoDataService<T> extends DataService<T, MongoTemplate, Query> {
     }
 
     @Override
-    public void createTables() {
+    public void createBaseTable() {
         dataTemplate().createCollection(getTableNameBase());
+    }
+
+    @Override
+    public void createHistoryTable() {
         dataTemplate().createCollection(getTableNameHistory());
     }
 
