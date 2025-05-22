@@ -1,16 +1,17 @@
-package com.simple.datasourcing.contracts;
+package com.simple.datasourcing.contracts.reactive;
 
+import lombok.*;
 import lombok.extern.slf4j.*;
-
-import java.util.*;
+import reactor.core.publisher.*;
 
 @Slf4j
-public abstract class DataActions<T> implements DataActionsBase<T> {
+public abstract class ReactiveDataActions<T> implements ReactiveDataActionsBase<T> {
 
-    private final DataService<T, ?, ?> service;
+    @Getter
+    private final ReactiveDataService<T, ?, ?> service;
     private final History history;
 
-    protected DataActions(DataService<T, ?, ?> service) {
+    protected ReactiveDataActions(ReactiveDataService<T, ?, ?> service) {
         this.service = service;
         this.history = new History();
     }
@@ -21,37 +22,37 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
     }
 
     @Override
-    public boolean truncate() {
+    public Mono<Boolean> truncate() {
         return service.truncate(getTableName());
     }
 
     @Override
-    public boolean createFor(String uniqueId, T data) {
+    public Mono<Boolean> createFor(String uniqueId, T data) {
         return service.createBy(uniqueId, data);
     }
 
     @Override
-    public List<T> getAllFor(String uniqueId) {
+    public Flux<T> getAllFor(String uniqueId) {
         return service.findAllBy(uniqueId, getTableName());
     }
 
     @Override
-    public T getLastFor(String uniqueId) {
+    public Mono<T> getLastFor(String uniqueId) {
         return service.getLastBy(uniqueId);
     }
 
     @Override
-    public long countFor(String uniqueId) {
+    public Mono<Long> countFor(String uniqueId) {
         return service.countBy(uniqueId, getTableName());
     }
 
     @Override
-    public boolean deleteFor(String uniqueId) {
+    public Mono<Boolean> deleteFor(String uniqueId) {
         return service.deleteBy(uniqueId);
     }
 
     @Override
-    public boolean isDeleted(String uniqueId) {
+    public Mono<Boolean> isDeleted(String uniqueId) {
         return service.isDeletedBy(uniqueId);
     }
 
@@ -59,7 +60,7 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
         return history;
     }
 
-    public class History implements DataActionsHistory<T> {
+    public class History implements ReactiveDataActionsHistory<T> {
 
         @Override
         public String getTableName() {
@@ -67,28 +68,28 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
         }
 
         @Override
-        public boolean truncate() {
+        public Mono<Boolean> truncate() {
             return service.truncate(History.this.getTableName());
         }
 
         @Override
-        public List<T> getAllFor(String uniqueId) {
+        public Flux<T> getAllFor(String uniqueId) {
             return service.findAllBy(uniqueId, service.getTableNameHistory());
         }
 
         @Override
-        public long countFor(String uniqueId) {
+        public Mono<Long> countFor(String uniqueId) {
             return service.countBy(uniqueId, service.getTableNameHistory());
         }
 
         @Override
-        public boolean dataHistorization(String uniqueId) {
+        public Mono<Boolean> dataHistorization(String uniqueId) {
             return service.dataHistorization(uniqueId);
         }
 
         @Override
-        public boolean removeFor(String uniqueId) {
-            return service.removeBy(uniqueId, service.getTableNameHistory());
+        public Mono<Boolean> removeFor(String uniqueId) {
+            return service.removeBy(uniqueId, service.getTableNameHistory()).hasElement();
         }
     }
 }

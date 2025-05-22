@@ -2,7 +2,6 @@ package com.simple.datasourcing;
 
 import com.simple.datasourcing.contracts.*;
 import lombok.extern.slf4j.*;
-import org.junit.jupiter.api.*;
 
 import java.util.*;
 import java.util.function.*;
@@ -10,32 +9,16 @@ import java.util.function.*;
 import static org.assertj.core.api.Assertions.*;
 
 @Slf4j
-class SimpleDataSourcingTestBase {
-
-    static String uniqueId = "holli";
-    static String uniqueIdNext = "holli-next";
-
-    TestData1 testData1;
-    TestData1 testData1_2;
-    TestData1 testData1_next;
-    TestData2 testData2;
+class DataSourcingTestBase extends TestData {
 
     DataActions<TestData1> da1;
     DataActions<TestData1>.History da1History;
     DataActions<TestData2> da2;
 
-    public SimpleDataSourcingTestBase(DataActions<TestData1> da1, DataActions<TestData2> da2) {
+    public DataSourcingTestBase(DataActions<TestData1> da1, DataActions<TestData2> da2) {
         this.da1 = da1;
         this.da1History = da1.history();
         this.da2 = da2;
-    }
-
-    @BeforeEach
-    void beforeEach() {
-        testData1 = new TestData1("id-1-1", "name-1-1", 1.1);
-        testData1_2 = new TestData1("id-1-2", "name-1-2", 1.2);
-        testData1_next = new TestData1("id-1-1-next", "name-1-1", 1.19);
-        testData2 = new TestData2("id-2-1", List.of(testData1, testData1_2));
     }
 
     void truncateData() {
@@ -71,7 +54,6 @@ class SimpleDataSourcingTestBase {
         truncateData();
     }
 
-
     void dataAllActionsTest() {
         assertThat(da2.createFor(uniqueId, testData2)).isNotNull();
         assertThat(da2.countFor(uniqueId)).isEqualTo(1);
@@ -92,11 +74,5 @@ class SimpleDataSourcingTestBase {
 
         assertThat(service.tableExists(service.getTableNameBase())).isFalse();
         assertThat(service.tableExists(service.getTableNameHistory())).isFalse();
-    }
-
-    public record TestData1(String id, String name, Object data) {
-    }
-
-    public record TestData2(String id, List<TestData1> testData1s) {
     }
 }

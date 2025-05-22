@@ -1,5 +1,6 @@
 package com.simple.datasourcing;
 
+import com.github.dockerjava.api.model.*;
 import com.simple.datasourcing.postgres.*;
 import lombok.extern.slf4j.*;
 import org.junit.jupiter.api.*;
@@ -8,19 +9,16 @@ import org.testcontainers.containers.*;
 import org.testcontainers.utility.*;
 
 @Slf4j
-class PostgresTests extends SimpleDataSourcingTestBase {
+class PostgresTests extends DataSourcingTestBase {
 
     @ServiceConnection
     static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"))
             .withCreateContainerCmdModifier(cmd -> cmd.withHostConfig(
-                    new com.github.dockerjava.api.model.HostConfig()
-                            .withPortBindings(new com.github.dockerjava.api.model.PortBinding(
-                                    com.github.dockerjava.api.model.Ports.Binding.bindPort(5432),
-                                    new com.github.dockerjava.api.model.ExposedPort(5432)
-                            ))
-            ))
+                    new HostConfig().withPortBindings(new PortBinding(
+                            Ports.Binding.bindPort(5432), new ExposedPort(5432)))))
             .withReuse(true);
     static PostgresDataMaster postgresDataMaster;
+
     static {
         postgreSQLContainer.start();
         postgresDataMaster = new PostgresDataMaster(postgreSQLContainer.getJdbcUrl());

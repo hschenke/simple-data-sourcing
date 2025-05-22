@@ -24,9 +24,9 @@ public abstract class DataService<T, DT, Q> implements DataServiceActions<T, Q> 
         if (!tableExists(tableNameBase) || !tableExists(tableNameHistory)) {
             log.info("Creating tables :: {} and {}", tableNameBase, tableNameHistory);
             createBaseTable();
-            if (!tableExists(tableNameBase)) throw new TableNotExistException(this.tableNameBase);
+            if (!tableExists(tableNameBase)) throw new TableNotCreatedException(this.tableNameBase);
             createHistoryTable();
-            if (!tableExists(tableNameHistory)) throw new TableNotExistException(this.tableNameHistory);
+            if (!tableExists(tableNameHistory)) throw new TableNotCreatedException(this.tableNameHistory);
         }
     }
 

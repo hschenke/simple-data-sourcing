@@ -5,7 +5,7 @@
 
     <groupId>com.holli.simple</groupId>
     <artifactId>datasourcing</artifactId>
-    <version>0.4.1</version>
+    <version>0.5.0</version>
 
     <distributionManagement>
         <repository>
@@ -51,16 +51,15 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
-        <!--		<dependency>-->
-        <!--			<groupId>org.springframework.boot</groupId>-->
-        <!--			<artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>-->
-        <!--		</dependency>-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>mongodb</artifactId>
             <scope>test</scope>
         </dependency>
-
         <!-- postgres -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -91,7 +90,12 @@
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- for cve reasons -->
         <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -99,11 +103,10 @@
             <version>1.27.1</version>
         </dependency>
 
-        <!--		<dependency>-->
-        <!--			<groupId>io.projectreactor</groupId>-->
-        <!--			<artifactId>reactor-test</artifactId>-->
-        <!--			<scope>test</scope>-->
-        <!--		</dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-webflux</artifactId>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>
