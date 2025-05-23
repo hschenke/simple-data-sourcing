@@ -24,6 +24,8 @@ class DataSourcingTestBase extends TestData {
     void truncateData() {
         da1.truncate();
         da1History.truncate();
+        da2.truncate();
+        da2.history().truncate();
     }
 
     void dataMasterTest() {
@@ -55,14 +57,13 @@ class DataSourcingTestBase extends TestData {
     }
 
     void dataAllActionsTest() {
+        truncateData();
         assertThat(da2.createFor(uniqueId, testData2)).isNotNull();
         assertThat(da2.countFor(uniqueId)).isEqualTo(1);
         assertThat(da2.history().countFor(uniqueId)).isEqualTo(0);
         assertThat(da2.history().dataHistorization(uniqueId)).isTrue();
         assertThat(da2.history().countFor(uniqueId)).isEqualTo(1);
         assertThat(da2.countFor(uniqueId)).isEqualTo(0);
-
-        truncateData();
     }
 
     void tableExistsTest(DataService<?, ?, ?> service, Consumer<String> dropTable) {

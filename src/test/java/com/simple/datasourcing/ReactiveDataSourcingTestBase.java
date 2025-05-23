@@ -26,18 +26,19 @@ class ReactiveDataSourcingTestBase extends TestData {
 
     void dataAllActionsTest() {
         StepVerifier.create(da2.createFor(uniqueId, testData2))
-                .expectNext(true)
-                .verifyComplete();
+                .expectNext(true).verifyComplete();
         StepVerifier.create(da2.countFor(uniqueId))
-                .expectNext(1L)
-                .verifyComplete();
+                .expectNext(1L).verifyComplete();
 
-//        assertThat(da2.createFor(uniqueId, testData2)).isNotNull();
-//        assertThat(da2.countFor(uniqueId)).isEqualTo(1);
-//        assertThat(da2.history().countFor(uniqueId)).isEqualTo(0);
-//        assertThat(da2.history().dataHistorization(uniqueId)).isTrue();
-//        assertThat(da2.history().countFor(uniqueId)).isEqualTo(1);
-//        assertThat(da2.countFor(uniqueId)).isEqualTo(0);
+        StepVerifier.create(da2.history().countFor(uniqueId))
+                .expectNext(0L).verifyComplete();
+        StepVerifier.create(da2.history().dataHistorization(uniqueId))
+                .expectNext(true).verifyComplete();
+        StepVerifier.create(da2.history().countFor(uniqueId))
+                .expectNext(1L).verifyComplete();
+
+        StepVerifier.create(da2.countFor(uniqueId))
+                .expectNext(0L).verifyComplete();
 
         truncateData();
     }

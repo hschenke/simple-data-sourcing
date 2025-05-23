@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.*;
 import org.springframework.data.mongodb.core.query.*;
 import reactor.core.publisher.*;
 
-import static org.springframework.data.mongodb.core.BulkOperations.*;
 import static org.springframework.data.mongodb.core.query.Criteria.*;
 
 @Slf4j
@@ -79,28 +78,12 @@ public class MongoReactiveDataService<T> extends ReactiveDataService<T, Reactive
     public Mono<Long> countBy(String uniqueId, String tableName) {
         return checkedDataTemplate()
                 .flatMap(dt -> dt.count(getQueryById(uniqueId), tableName))
-                .doOnSuccess(count -> log.info("Count of [{}] : {}", uniqueId, count));
+                .doOnSuccess(count -> log.info("Count of [{}] in table [{}] :: {}", uniqueId, tableName, count));
     }
 
     @Override
     public Mono<DeleteResult> removeBy(String uniqueId, String tableName) {
         return checkedDataTemplate().flatMap(dt -> dt.remove(getQueryById(uniqueId), tableName));
-    }
-
-    @Override
-    public Mono<Boolean> dataHistorization(String uniqueId) {
-        return checkedDataTemplate().flatMap(dt -> dt
-                        .bulkOps(BulkMode.ORDERED, getTableNameHistory())
-                        .insert(findAllEventsBy(uniqueId, getTableNameBase()))
-                        .execute())
-                .filter(BulkWriteResult::wasAcknowledged)
-                .map(_ -> uncheckedDataTemplate().bulkOps(BulkMode.UNORDERED, getTableNameBase()))
-                .map(bulk -> bulk.remove(getQueryById(uniqueId)))
-                .flatMap(ReactiveBulkOperations::execute)
-                .map(BulkWriteResult::wasAcknowledged)
-                .doOnSuccess(_ -> log.info("Historization completed successfully"))
-                .doOnError(e -> log.error(e.getMessage()))
-                .onErrorResume(_ -> Mono.just(false));
     }
 
     @SuppressWarnings("unchecked")
@@ -113,5 +96,35 @@ public class MongoReactiveDataService<T> extends ReactiveDataService<T, Reactive
     @Override
     public Mono<DataEvent<T>> insertBy(DataEvent<T> dataEvent) {
         return checkedDataTemplate().flatMap(dt -> dt.insert(dataEvent, getTableNameBase()));
+    }
+
+    @Override
+    public Mono<Boolean> dataHistorization(String uniqueId) {
+        return moveToHistory(uniqueId)
+                .flatMap(_ -> removeFromBase(uniqueId))
+                .doOnSuccess(_ -> log.info("Historization completed successfully"))
+                .doOnError(e -> log.error(e.getMessage()))
+                .onErrorResume(_ -> Mono.just(false));
+    }
+
+    private Mono<Boolean> moveToHistory(String uniqueId) {
+        return checkedDataTemplate()
+                .flatMap(dt -> findAllEventsBy(uniqueId, getTableNameBase())
+                        .collectList()
+                        .flatMap(list -> dt.
+                                bulkOps(BulkOperations.BulkMode.ORDERED, getTableNameHistory())
+                                .insert(list)
+                                .execute()
+                        )
+                )
+                .map(BulkWriteResult::wasAcknowledged);
+    }
+
+    private Mono<Boolean> removeFromBase(String uniqueId) {
+        return uncheckedDataTemplate()
+                .bulkOps(BulkOperations.BulkMode.UNORDERED, getTableNameBase())
+                .remove(getQueryById(uniqueId))
+                .execute()
+                .map(BulkWriteResult::wasAcknowledged);
     }
 }
