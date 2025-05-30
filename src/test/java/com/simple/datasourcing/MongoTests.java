@@ -7,17 +7,37 @@ import org.junit.jupiter.api.*;
 @Slf4j
 class MongoTests extends DataSourcingTestBase {
 
-    static MongoDataMaster mongoDataMaster = new MongoDataMaster(mongoDBContainer.getReplicaSetUrl());
+    @BeforeAll
+    static void setUp() {
+        mongoDBContainer.start();
+    }
+
+    @AfterAll
+    static void tearDown() {
+        mongoDBContainer.stop();
+    }
 
     public MongoTests() {
-        super(mongoDataMaster.getDataActions(TestData1.class), mongoDataMaster.getDataActions(TestData2.class));
+        super(new MongoDataMaster(mongoDBContainer.getReplicaSetUrl()));
     }
 
     @Test
-    void testMe() {
-        dataMasterTest();
-        dataAllActionsTest();
-        var service = mongoDataMaster.getDataActions(TestData1.class).getService();
-        tableExistsTest(service, tableName -> service.dataTemplate().dropCollection(tableName));
+    void audit() {
+        runAuditTest();
+    }
+
+    @Test
+    void allActions1() {
+        runActionsFor(testData1);
+    }
+
+    @Test
+    void allActions2() {
+        runActionsFor(testData2);
+    }
+
+    @Test
+    void allActions3() {
+        runActionsFor(testData3);
     }
 }

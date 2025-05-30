@@ -4,76 +4,106 @@ import com.simple.datasourcing.contracts.*;
 import lombok.extern.slf4j.*;
 
 import java.util.*;
-import java.util.function.*;
 
 import static org.assertj.core.api.Assertions.*;
 
 @Slf4j
-class DataSourcingTestBase extends TestData {
+class DataSourcingTestBase extends TestBase {
+
+    DataActions<?> dataActions;
+    DataActions<?>.History dataActionsHistory;
 
     DataActions<TestData1> da1;
-    DataActions<TestData1>.History da1History;
     DataActions<TestData2> da2;
+    DataActions<TestData3> da3;
 
-    public DataSourcingTestBase(DataActions<TestData1> da1, DataActions<TestData2> da2) {
-        this.da1 = da1;
-        this.da1History = da1.history();
-        this.da2 = da2;
+    public DataSourcingTestBase(DataMaster dataMaster) {
+        this.da1 = dataMaster.getDataActions(TestData1.class);
+        this.da2 = dataMaster.getDataActions(TestData2.class);
+        this.da3 = dataMaster.getDataActions(TestData3.class);
     }
 
     void truncateData() {
         da1.truncate();
-        da1History.truncate();
+        da1.history().truncate();
         da2.truncate();
         da2.history().truncate();
+        da3.truncate();
+        da3.history().truncate();
     }
 
-    void dataMasterTest() {
-        assertThat(da1.getTableName()).isEqualTo(TestData1.class.getSimpleName().toLowerCase());
-        assertThat(da1History.getTableName()).isEqualTo(TestData1.class.getSimpleName().concat("_history").toLowerCase());
-
-        assertThat(da1.createFor(uniqueId, testData1)).isNotNull();
-        assertThat(da1.createFor(uniqueId, testData1_2)).isNotNull();
-        assertThat(da1.createFor(uniqueIdNext, testData1_next)).isNotNull();
-        assertThat(da1.countFor(uniqueId)).isEqualTo(2);
-        assertThat(da1.getAllFor(uniqueId)).hasSize(2).isEqualTo(List.of(testData1, testData1_2));
-        assertThat(da1.getLastFor(uniqueId)).isEqualTo(testData1_2);
-
-        assertThat(da1.isDeleted(uniqueId)).isFalse();
-        assertThat(da1History.countFor(uniqueId)).isEqualTo(0);
-        assertThat(da1.deleteFor(uniqueId)).isTrue();
-        assertThat(da1.isDeleted(uniqueId)).isTrue();
-        assertThat(da1.getLastFor(uniqueId)).isNull();
-        assertThat(da1.countFor(uniqueId)).isEqualTo(1);
-        assertThat(da1History.countFor(uniqueId)).isEqualTo(2);
-
-        assertThat(da1History.dataHistorization(uniqueId)).isTrue();
-        assertThat(da1History.getAllFor(uniqueId)).hasSize(3);
-        assertThat(da1History.countFor(uniqueId)).isEqualTo(3);
-        assertThat(da1History.removeFor(uniqueId)).isTrue();
-        assertThat(da1History.countFor(uniqueId)).isEqualTo(0);
-
-        truncateData();
+    @Override
+    protected void setDataActions(TestData testData) {
+        this.dataActions = getDa(testData);
+        this.dataActionsHistory = getDaHistory(testData);
     }
 
-    void dataAllActionsTest() {
-        truncateData();
-        assertThat(da2.createFor(uniqueId, testData2)).isNotNull();
-        assertThat(da2.countFor(uniqueId)).isEqualTo(1);
-        assertThat(da2.history().countFor(uniqueId)).isEqualTo(0);
-        assertThat(da2.history().dataHistorization(uniqueId)).isTrue();
-        assertThat(da2.history().countFor(uniqueId)).isEqualTo(1);
-        assertThat(da2.countFor(uniqueId)).isEqualTo(0);
+    @SuppressWarnings("unchecked")
+    <T extends TestData> DataActions<T> getDa(TestData testData) {
+        return (DataActions<T>) switch (testData) {
+            case TestData1 ignored -> da1;
+            case TestData2 ignored -> da2;
+            case TestData3 ignored -> da3;
+        };
     }
 
-    void tableExistsTest(DataService<?, ?, ?> service, Consumer<String> dropTable) {
-        assertThat(service.tableExists(service.getTableNameBase())).isTrue();
-        assertThat(service.tableExists(service.getTableNameHistory())).isTrue();
+    @SuppressWarnings("unchecked")
+    <T extends TestData> DataActions<T>.History getDaHistory(TestData testData) {
+        return (DataActions<T>.History) switch (testData) {
+            case TestData1 ignored -> da1.history();
+            case TestData2 ignored -> da2.history();
+            case TestData3 ignored -> da3.history();
+        };
+    }
 
-        dropTable.accept(da1.getTableName());
-        dropTable.accept(da1History.getTableName());
+    @Override
+    protected void checkTableNames(String baseName, String historyName) {
+        assertThat(dataActions.getTableName()).isEqualTo(baseName);
+        assertThat(dataActionsHistory.getTableName()).isEqualTo(historyName);
+    }
 
-        assertThat(service.tableExists(service.getTableNameBase())).isFalse();
-        assertThat(service.tableExists(service.getTableNameHistory())).isFalse();
+    @Override
+    protected void checkCreate(String uniqueId, TestData testData) {
+        assertThat(getDa(testData).createFor(uniqueId, testData)).isTrue();
+    }
+
+    @Override
+    protected void checkCount(String uniqueId, long count) {
+        assertThat(dataActions.countFor(uniqueId)).isEqualTo(count);
+    }
+
+    @Override
+    protected void checkGetAllEqual(String uniqueId, int count, List<TestData> testDataList) {
+        assertThat(dataActions.getAllFor(uniqueId)).hasSize(count).isEqualTo(testDataList);
+    }
+
+    @Override
+    protected void checkGetLast(String uniqueId, TestData testData) {
+        assertThat(dataActions.getLastFor(uniqueId)).isEqualTo(testData);
+    }
+
+    @Override
+    protected void checkRemove(String uniqueId) {
+        assertThat(dataActionsHistory.removeFor(uniqueId)).isTrue();
+    }
+
+    @Override
+    protected void checkDelete(String uniqueId) {
+        assertThat(dataActions.deleteFor(uniqueId)).isTrue();
+    }
+
+    @Override
+    protected void checkCountHistory(String uniqueId, long count) {
+        assertThat(dataActionsHistory.countFor(uniqueId)).isEqualTo(count);
+    }
+
+    @Override
+    protected void checkIsDeleted(String uniqueId, boolean isDeleted) {
+        assertThat(dataActions.isDeleted(uniqueId)).isEqualTo(isDeleted);
+    }
+
+    @Override
+    protected void checkDataHistorization(String uniqueId) {
+        assertThat(dataActionsHistory.dataHistorization(uniqueId)).isTrue();
     }
 }

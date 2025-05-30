@@ -1,13 +1,18 @@
-package com.simple.datasourcing.service;
+package com.simple.datasourcing.sql;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.datatype.jsr310.*;
+import com.fasterxml.jackson.datatype.jsr310.ser.*;
 import com.simple.datasourcing.contracts.*;
 import com.simple.datasourcing.model.*;
+import com.simple.datasourcing.sql.converter.*;
 import lombok.*;
 import lombok.extern.slf4j.*;
 import org.springframework.jdbc.core.*;
 
+import java.time.*;
+import java.time.format.*;
 import java.util.*;
 
 @SuppressWarnings("SqlSourceToSinkFlow")
@@ -17,10 +22,25 @@ public abstract class SqlDataService<T> extends DataService<T, JdbcTemplate, Str
     private static final String WHERE_UNIQUE_ID_UNIQUE_ID = "where uniqueId = ?";
     private static final String ORDER_BY_TIMESTAMP_DESC_LIMIT_1 = WHERE_UNIQUE_ID_UNIQUE_ID + " order by timestamp desc limit 1";
     @Getter
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     public SqlDataService(DataConnection<JdbcTemplate> dataConnection, Class<T> clazz) {
         super(dataConnection, clazz);
+        this.objectMapper = new ObjectMapper();
+        configureObjectMapper();
+    }
+
+    private void configureObjectMapper() {
+        // Custom formatter
+        var formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
+        // JavaTimeModule with custom serializer and deserializer for ZonedDateTime
+        var javaTimeModule = new JavaTimeModule();
+        javaTimeModule.addSerializer(ZonedDateTime.class, new ZonedDateTimeSerializer(formatter));
+        javaTimeModule.addDeserializer(ZonedDateTime.class, new CustomZonedDateTimeDeserializer());
+        // Register the module
+        objectMapper.registerModule(javaTimeModule);
+        // Set other options
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
     protected abstract String getFormattableCreateTableSql();

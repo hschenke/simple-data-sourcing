@@ -81,7 +81,7 @@ public class MongoDataService<T> extends DataService<T, MongoTemplate, Query> {
 
             return true;
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("Data Historization error :: {}", e.getMessage());
             return false;
         }
     }

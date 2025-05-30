@@ -7,10 +7,18 @@ import org.junit.jupiter.api.*;
 @Slf4j
 class ReactiveMongoTests extends ReactiveDataSourcingTestBase {
 
-    static MongoReactiveDataMaster dataMaster = new MongoReactiveDataMaster(mongoDBContainer.getReplicaSetUrl());
+    @BeforeAll
+    static void setUp() {
+        mongoDBContainer.start();
+    }
+
+    @AfterAll
+    static void tearDown() {
+        mongoDBContainer.stop();
+    }
 
     public ReactiveMongoTests() {
-        super(dataMaster.getDataActions(TestData1.class), dataMaster.getDataActions(TestData2.class));
+        super(new MongoReactiveDataMaster(mongoDBContainer.getReplicaSetUrl()));
     }
 
     @Test

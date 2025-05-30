@@ -2,7 +2,7 @@ package com.simple.datasourcing.postgres;
 
 import com.fasterxml.jackson.core.*;
 import com.simple.datasourcing.model.*;
-import com.simple.datasourcing.service.*;
+import com.simple.datasourcing.sql.*;
 import lombok.extern.slf4j.*;
 import org.postgresql.util.*;
 import org.springframework.jdbc.core.namedparam.*;

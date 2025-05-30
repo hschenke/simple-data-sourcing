@@ -1,50 +1,67 @@
 package com.simple.datasourcing;
 
-import com.github.dockerjava.api.model.*;
 import com.simple.datasourcing.postgres.*;
 import lombok.extern.slf4j.*;
 import org.junit.jupiter.api.*;
-import org.springframework.boot.testcontainers.service.connection.*;
-import org.testcontainers.containers.*;
-import org.testcontainers.utility.*;
+import org.springframework.test.annotation.*;
 
 @Slf4j
+@DirtiesContext
 class PostgresTests extends DataSourcingTestBase {
 
-    @ServiceConnection
-    static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"))
-            .withCreateContainerCmdModifier(cmd -> cmd.withHostConfig(
-                    new HostConfig().withPortBindings(new PortBinding(
-                            Ports.Binding.bindPort(5432), new ExposedPort(5432)))))
-            .withReuse(true);
-    static PostgresDataMaster postgresDataMaster;
-
-    static {
+    @BeforeAll
+    static void setUp() {
         postgreSQLContainer.start();
-        postgresDataMaster = new PostgresDataMaster(postgreSQLContainer.getJdbcUrl());
     }
 
-//    PostgresDataActions<TestData1> da1;
-//    PostgresDataActions<TestData1>.History da1History;
+    @AfterAll
+    static void tearDown() {
+        postgreSQLContainer.stop();
+    }
 
     public PostgresTests() {
-        super(postgresDataMaster.getDataActions(TestData1.class), postgresDataMaster.getDataActions(TestData2.class));
+        super(new PostgresDataMaster(postgreSQLContainer.getJdbcUrl()));
     }
 
     @Test
-    void dataMasterTestx() {
-        dataMasterTest();
+    void audit() {
+        runAuditTest();
     }
 
     @Test
-    void dataAllActionsTestx() {
-        dataAllActionsTest();
+    void allActions1() {
+        runActionsFor(testData1);
     }
 
-    @SuppressWarnings("SqlSourceToSinkFlow")
     @Test
-    void tableExistsTest() {
-        var service = postgresDataMaster.getDataActions(TestData1.class).getService();
-        tableExistsTest(service, tableName -> service.dataTemplate().execute("DROP TABLE " + tableName));
+    void allActions2() {
+        runActionsFor(testData2);
     }
+
+    @Test
+    void allActions3() {
+        runActionsFor(testData3);
+    }
+
+//    @Test
+//    void zonedDateTimeTest() throws JsonProcessingException {
+//        var objectMapper = new ObjectMapper();
+//        // Custom formatter
+//        DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
+//
+//        // JavaTimeModule with custom serializer for ZonedDateTime
+//        JavaTimeModule javaTimeModule = new JavaTimeModule();
+//        javaTimeModule.addSerializer(ZonedDateTime.class, new ZonedDateTimeSerializer(formatter));
+//        javaTimeModule.addDeserializer(ZonedDateTime.class, new CustomZonedDateTimeDeserializer());
+//
+//        // Register the module
+//        objectMapper.registerModule(javaTimeModule);
+//        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+//
+//        var now = ZonedDateTime.now();
+//        System.out.println(now);
+//        var mapped = objectMapper.writeValueAsString(now);
+//        System.out.println(mapped);
+//        System.out.println(objectMapper.readValue(mapped, ZonedDateTime.class));
+//    }
 }

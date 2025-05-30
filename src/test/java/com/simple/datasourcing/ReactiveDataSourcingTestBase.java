@@ -5,18 +5,18 @@ import lombok.extern.slf4j.*;
 import reactor.test.*;
 
 @Slf4j
-class ReactiveDataSourcingTestBase extends TestData {
+class ReactiveDataSourcingTestBase extends TestDataAndSetup {
 
     ReactiveDataActions<TestData1> da1;
     ReactiveDataActions<TestData1>.History da1History;
     ReactiveDataService<TestData1, ?, ?> service1;
     ReactiveDataActions<TestData2> da2;
 
-    public ReactiveDataSourcingTestBase(ReactiveDataActions<TestData1> da1, ReactiveDataActions<TestData2> da2) {
-        this.da1 = da1;
+    public ReactiveDataSourcingTestBase(ReactiveDataMaster master) {
+        this.da1 = master.getDataActions(TestData1.class);
         this.da1History = da1.history();
         this.service1 = da1.getService();
-        this.da2 = da2;
+        this.da2 = master.getDataActions(TestData2.class);
     }
 
     void truncateData() {
