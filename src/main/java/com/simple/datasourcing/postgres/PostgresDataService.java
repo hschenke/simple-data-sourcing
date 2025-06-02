@@ -44,33 +44,30 @@ public class PostgresDataService<T> extends SqlDataService<T> {
     }
 
     @Override
-    public boolean dataHistorization(String uniqueId) {
-        try {
-            var insert = new SimpleJdbcInsert(dataTemplate()).withTableName(getTableNameHistory());
-            var batch = findAllEventsBy(uniqueId, getTableNameBase()).stream()
-                    .map(dataEvent -> {
-                        Map<String, Object> params = new HashMap<>();
-                        params.put("uniqueId", dataEvent.getUniqueId());
-                        params.put("deleted", dataEvent.getDeleted());
-                        params.put("timestamp", dataEvent.getTimestamp());
-                        try {
-                            params.put("data", transformToJsonb(dataEvent.getData()));
-                        } catch (SQLException e) {
-                            log.error(e.getMessage());
-                        }
-                        return params;
-                    })
-                    .map(MapSqlParameterSource::new)
-                    .toArray(SqlParameterSource[]::new);
+    public boolean moveToHistory(String uniqueId) {
+        var batch = findAllEventsBy(uniqueId, getTableNameBase()).stream()
+                .map(dataEvent -> {
+                    Map<String, Object> params = new HashMap<>();
+                    params.put("uniqueId", dataEvent.getUniqueId());
+                    params.put("deleted", dataEvent.getDeleted());
+                    params.put("timestamp", dataEvent.getTimestamp());
+                    try {
+                        params.put("data", transformToJsonb(dataEvent.getData()));
+                    } catch (SQLException e) {
+                        log.error(e.getMessage());
+                    }
+                    return params;
+                })
+                .map(MapSqlParameterSource::new)
+                .toArray(SqlParameterSource[]::new);
 
-            insert.executeBatch(batch);
-            removeBy(uniqueId, getTableNameBase());
+        var ints = new SimpleJdbcInsert(dataTemplate()).withTableName(getTableNameHistory()).executeBatch(batch);
+        return ints.length > 0;
+    }
 
-            return true;
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return false;
-        }
+    @Override
+    public boolean removeFromBase(String uniqueId) {
+        return removeBy(uniqueId, getTableNameBase());
     }
 
     public PGobject transformToJsonb(T data) throws SQLException {

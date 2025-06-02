@@ -64,37 +64,37 @@ class DataSourcingTestBase extends TestBase {
 
     @Override
     protected void checkCreate(String uniqueId, TestData testData) {
-        assertThat(getDa(testData).createFor(uniqueId, testData)).isTrue();
+        assertThat(getDa(testData).create(uniqueId, testData)).isTrue();
     }
 
     @Override
     protected void checkCount(String uniqueId, long count) {
-        assertThat(dataActions.countFor(uniqueId)).isEqualTo(count);
+        assertThat(dataActions.count(uniqueId)).isEqualTo(count);
     }
 
     @Override
     protected void checkGetAllEqual(String uniqueId, int count, List<TestData> testDataList) {
-        assertThat(dataActions.getAllFor(uniqueId)).hasSize(count).isEqualTo(testDataList);
+        assertThat(dataActions.getAll(uniqueId)).hasSize(count).isEqualTo(testDataList);
     }
 
     @Override
     protected void checkGetLast(String uniqueId, TestData testData) {
-        assertThat(dataActions.getLastFor(uniqueId)).isEqualTo(testData);
+        assertThat(dataActions.getLast(uniqueId)).isEqualTo(testData);
     }
 
     @Override
     protected void checkRemove(String uniqueId) {
-        assertThat(dataActionsHistory.removeFor(uniqueId)).isTrue();
+        assertThat(dataActionsHistory.remove(uniqueId)).isTrue();
     }
 
     @Override
     protected void checkDelete(String uniqueId) {
-        assertThat(dataActions.deleteFor(uniqueId)).isTrue();
+        assertThat(dataActions.delete(uniqueId)).isTrue();
     }
 
     @Override
     protected void checkCountHistory(String uniqueId, long count) {
-        assertThat(dataActionsHistory.countFor(uniqueId)).isEqualTo(count);
+        assertThat(dataActionsHistory.count(uniqueId)).isEqualTo(count);
     }
 
     @Override
@@ -104,6 +104,6 @@ class DataSourcingTestBase extends TestBase {
 
     @Override
     protected void checkDataHistorization(String uniqueId) {
-        assertThat(dataActionsHistory.dataHistorization(uniqueId)).isTrue();
+        assertThat(dataActionsHistory.historization(uniqueId)).isTrue();
     }
 }

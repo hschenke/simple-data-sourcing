@@ -1,4 +1,4 @@
-package com.simple.datasourcing.mongo.converter;
+package com.simple.datasourcing.converter;
 
 import org.springframework.core.convert.converter.*;
 import org.springframework.data.convert.*;

@@ -5,12 +5,12 @@ import lombok.*;
 import lombok.extern.slf4j.*;
 
 @Slf4j
-public class MongoReactiveDataActions<T> extends ReactiveDataActions<T> {
+public class ReactiveMongoDataActions<T> extends ReactiveDataActions<T> {
 
     @Getter
-    private final MongoReactiveDataService<T> mongoService;
+    private final ReactiveMongoDataService<T> mongoService;
 
-    public MongoReactiveDataActions(MongoReactiveDataService<T> service) {
+    public ReactiveMongoDataActions(ReactiveMongoDataService<T> service) {
         super(service);
         this.mongoService = service;
     }

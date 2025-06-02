@@ -13,9 +13,9 @@ import reactor.core.publisher.*;
 import static org.springframework.data.mongodb.core.query.Criteria.*;
 
 @Slf4j
-public class MongoReactiveDataService<T> extends ReactiveDataService<T, ReactiveMongoTemplate, Query> {
+public class ReactiveMongoDataService<T> extends ReactiveDataService<T, ReactiveMongoTemplate, Query> {
 
-    public MongoReactiveDataService(MongoReactiveDataConnection mongoDataConnection, Class<T> clazz) {
+    public ReactiveMongoDataService(ReactiveMongoDataConnection mongoDataConnection, Class<T> clazz) {
         super(mongoDataConnection, clazz);
     }
 
@@ -90,7 +90,8 @@ public class MongoReactiveDataService<T> extends ReactiveDataService<T, Reactive
     @Override
     public Mono<DataEvent<T>> findLastBy(String uniqueId) {
         return (Mono<DataEvent<T>>) checkedDataTemplate().flatMap(dt ->
-                dt.findOne(getQueryLastById(uniqueId), DataEvent.create().getClass(), getTableNameBase()));
+                dt.findOne(getQueryLastById(uniqueId), DataEvent.create().getClass(), getTableNameBase()))
+                .doOnSuccess(lastData -> log.info("Last data found :: {}", lastData));
     }
 
     @Override
@@ -99,15 +100,7 @@ public class MongoReactiveDataService<T> extends ReactiveDataService<T, Reactive
     }
 
     @Override
-    public Mono<Boolean> dataHistorization(String uniqueId) {
-        return moveToHistory(uniqueId)
-                .flatMap(_ -> removeFromBase(uniqueId))
-                .doOnSuccess(_ -> log.info("Historization completed successfully"))
-                .doOnError(e -> log.error(e.getMessage()))
-                .onErrorResume(_ -> Mono.just(false));
-    }
-
-    private Mono<Boolean> moveToHistory(String uniqueId) {
+    public Mono<Boolean> moveToHistory(String uniqueId) {
         return checkedDataTemplate()
                 .flatMap(dt -> findAllEventsBy(uniqueId, getTableNameBase())
                         .collectList()
@@ -120,7 +113,8 @@ public class MongoReactiveDataService<T> extends ReactiveDataService<T, Reactive
                 .map(BulkWriteResult::wasAcknowledged);
     }
 
-    private Mono<Boolean> removeFromBase(String uniqueId) {
+    @Override
+    public Mono<Boolean> removeFromBase(String uniqueId) {
         return uncheckedDataTemplate()
                 .bulkOps(BulkOperations.BulkMode.UNORDERED, getTableNameBase())
                 .remove(getQueryById(uniqueId))

@@ -4,11 +4,11 @@ import reactor.core.publisher.*;
 
 public interface ReactiveDataActionsBase<T> extends ReactiveDataActionsCommon<T> {
 
-    Mono<Boolean> createFor(String uniqueId, T data);
+    Mono<Boolean> create(String uniqueId, T data);
 
-    Mono<T> getLastFor(String uniqueId);
+    Mono<T> getLast(String uniqueId);
 
-    Mono<Boolean> deleteFor(String uniqueId);
+    Mono<Boolean> delete(String uniqueId);
 
     Mono<Boolean> isDeleted(String uniqueId);
 }

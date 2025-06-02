@@ -1,26 +1,27 @@
-package com.simple.datasourcing.mongo;
+package com.simple.datasourcing.mongo.reactive;
 
 import com.mongodb.*;
-import com.mongodb.client.*;
+import com.mongodb.reactivestreams.client.*;
 import com.simple.datasourcing.contracts.*;
+import com.simple.datasourcing.mongo.*;
 import lombok.extern.slf4j.*;
 import org.springframework.data.mongodb.core.*;
 
 import java.util.*;
 
 @Slf4j
-public class MongoDataConnection extends DataConnection<MongoTemplate> {
+public class ReactiveMongoDataConnection extends DataConnection<ReactiveMongoTemplate> {
 
-    public MongoDataConnection(String dbUri) {
+    public ReactiveMongoDataConnection(String dbUri) {
         super(dbUri);
     }
 
     @Override
-    public MongoTemplate generateDataTemplate(String dbUri) {
+    public ReactiveMongoTemplate generateDataTemplate(String dbUri) {
         try {
             var connectionString = new ConnectionString(dbUri);
-            var databaseFactory = new SimpleMongoClientDatabaseFactory(mongoClient(connectionString), Objects.requireNonNull(connectionString.getDatabase()));
-            return new MongoTemplate(databaseFactory, MongoCommon.get().converters());
+            var databaseFactory = new SimpleReactiveMongoDatabaseFactory(mongoClient(connectionString), Objects.requireNonNull(connectionString.getDatabase()));
+            return new ReactiveMongoTemplate(databaseFactory, MongoCommon.get().converters());
         } catch (Exception e) {
             log.error("Cannot create MongoTemplate for [{}] :: {}", dbUri, e.getMessage());
             throw new RuntimeException(e);

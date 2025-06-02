@@ -68,24 +68,6 @@ public class MongoDataService<T> extends DataService<T, MongoTemplate, Query> {
         return dataTemplate().remove(getQueryById(uniqueId), tableName).wasAcknowledged();
     }
 
-    @Override
-    public boolean dataHistorization(String uniqueId) {
-        try {
-            var bulkOpsHistory = dataTemplate().bulkOps(BulkOperations.BulkMode.ORDERED, getTableNameHistory());
-            bulkOpsHistory.insert(findAllEventsBy(uniqueId, getTableNameBase()));
-            bulkOpsHistory.execute();
-
-            var bulkOps = dataTemplate().bulkOps(BulkOperations.BulkMode.UNORDERED, getTableNameBase());
-            bulkOps.remove(getQueryById(uniqueId));
-            bulkOps.execute();
-
-            return true;
-        } catch (Exception e) {
-            log.error("Data Historization error :: {}", e.getMessage());
-            return false;
-        }
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public DataEvent<T> findLastBy(String uniqueId) {
@@ -96,5 +78,19 @@ public class MongoDataService<T> extends DataService<T, MongoTemplate, Query> {
     public boolean insertBy(DataEvent<T> dataEvent) {
         dataTemplate().insert(dataEvent, getTableNameBase());
         return true;
+    }
+
+    @Override
+    public boolean moveToHistory(String uniqueId) {
+        var bulkOpsHistory = dataTemplate().bulkOps(BulkOperations.BulkMode.ORDERED, getTableNameHistory());
+        bulkOpsHistory.insert(findAllEventsBy(uniqueId, getTableNameBase()));
+        return bulkOpsHistory.execute().wasAcknowledged();
+    }
+
+    @Override
+    public boolean removeFromBase(String uniqueId) {
+        var bulkOps = dataTemplate().bulkOps(BulkOperations.BulkMode.UNORDERED, getTableNameBase());
+        bulkOps.remove(getQueryById(uniqueId));
+        return bulkOps.execute().wasAcknowledged();
     }
 }

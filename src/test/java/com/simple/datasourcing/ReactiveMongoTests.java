@@ -18,34 +18,26 @@ class ReactiveMongoTests extends ReactiveDataSourcingTestBase {
     }
 
     public ReactiveMongoTests() {
-        super(new MongoReactiveDataMaster(mongoDBContainer.getReplicaSetUrl()));
+        super(new ReactiveMongoDataMaster(mongoDBContainer.getReplicaSetUrl()));
     }
 
     @Test
-    void testMe() {
-        tableExistsTest();
-        dataAllActionsTest();
+    void audit() {
+        runAuditTest();
     }
 
-//    @Test
-//    void testReactiveMongo() {
-//        var dataActions = dataMaster.getDataActions(TestData2.class);
-//        var mongoService = dataActions.getMongoService();
-//
-//        var allEventsBy = mongoService.findAllEventsBy(uniqueId, mongoService.getTableNameBase());
-//
-//        StepVerifier.create(allEventsBy).verifyComplete();
-//        StepVerifier.create(dataActions.countFor(uniqueId)).expectNext(0l).verifyComplete();
-//
-//        StepVerifier.create(dataActions.createFor(uniqueId, testData2)).expectNext(true).verifyComplete();
-//
-//        StepVerifier.create(dataActions.countFor(uniqueId)).expectNext(1l).verifyComplete();
-//        StepVerifier.create(allEventsBy.log()).expectNextMatches(Objects::nonNull).verifyComplete();
-//
-//        StepVerifier.create(dataActions.history().countFor(uniqueId)).expectNext(0L).verifyComplete();
-//        StepVerifier.create(mongoService.moveToHistory(uniqueId))
-//                .expectNext(true)
-//                .verifyComplete();
-//        StepVerifier.create(dataActions.history().countFor(uniqueId)).expectNext(1L).verifyComplete();
-//    }
+    @Test
+    void allActions1() {
+        runActionsFor(testData1);
+    }
+
+    @Test
+    void allActions2() {
+        runActionsFor(testData2);
+    }
+
+    @Test
+    void allActions3() {
+        runActionsFor(testData3);
+    }
 }

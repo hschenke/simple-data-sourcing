@@ -12,4 +12,6 @@ public abstract class DataConnection<DT> implements DataConnectionActions<DT> {
     public DataConnection(String dbUri) {
         this.dataTemplate = generateDataTemplate(dbUri);
     }
+
+    protected abstract DT generateDataTemplate(String dbUri);
 }

@@ -1,4 +1,4 @@
-package com.simple.datasourcing.mongo.converter;
+package com.simple.datasourcing.converter;
 
 import org.bson.BsonReader;
 import org.bson.BsonWriter;

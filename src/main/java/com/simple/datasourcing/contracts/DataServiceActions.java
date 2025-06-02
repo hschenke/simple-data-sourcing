@@ -24,9 +24,11 @@ public interface DataServiceActions<T, Q> {
 
     boolean removeBy(String uniqueId, String tableName);
 
-    boolean dataHistorization(String uniqueId);
-
     DataEvent<T> findLastBy(String uniqueId);
 
     boolean insertBy(DataEvent<T> dataEvent);
+
+    boolean moveToHistory(String uniqueId);
+
+    boolean removeFromBase(String uniqueId);
 }

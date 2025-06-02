@@ -2,7 +2,7 @@ package com.simple.datasourcing.contracts;
 
 public interface DataActionsHistory<T> extends DataActionsCommon<T> {
 
-    boolean dataHistorization(String uniqueId);
+    boolean historization(String uniqueId);
 
-    boolean removeFor(String uniqueId);
+    boolean remove(String uniqueId);
 }

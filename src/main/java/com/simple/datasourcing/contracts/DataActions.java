@@ -26,27 +26,27 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
     }
 
     @Override
-    public boolean createFor(String uniqueId, T data) {
+    public boolean create(String uniqueId, T data) {
         return service.createBy(uniqueId, data);
     }
 
     @Override
-    public List<T> getAllFor(String uniqueId) {
+    public List<T> getAll(String uniqueId) {
         return service.findAllBy(uniqueId, getTableName());
     }
 
     @Override
-    public T getLastFor(String uniqueId) {
+    public T getLast(String uniqueId) {
         return service.getLastBy(uniqueId);
     }
 
     @Override
-    public long countFor(String uniqueId) {
+    public long count(String uniqueId) {
         return service.countBy(uniqueId, getTableName());
     }
 
     @Override
-    public boolean deleteFor(String uniqueId) {
+    public boolean delete(String uniqueId) {
         return service.deleteBy(uniqueId);
     }
 
@@ -72,22 +72,22 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
         }
 
         @Override
-        public List<T> getAllFor(String uniqueId) {
+        public List<T> getAll(String uniqueId) {
             return service.findAllBy(uniqueId, service.getTableNameHistory());
         }
 
         @Override
-        public long countFor(String uniqueId) {
+        public long count(String uniqueId) {
             return service.countBy(uniqueId, service.getTableNameHistory());
         }
 
         @Override
-        public boolean dataHistorization(String uniqueId) {
+        public boolean historization(String uniqueId) {
             return service.dataHistorization(uniqueId);
         }
 
         @Override
-        public boolean removeFor(String uniqueId) {
+        public boolean remove(String uniqueId) {
             return service.removeBy(uniqueId, service.getTableNameHistory());
         }
     }

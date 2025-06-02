@@ -64,4 +64,13 @@ public abstract class DataService<T, DT, Q> implements DataServiceActions<T, Q> 
                 .map(DataEvent::getDeleted)
                 .orElse(Boolean.FALSE);
     }
+
+    public boolean dataHistorization(String uniqueId) {
+        try {
+            return moveToHistory(uniqueId) && removeFromBase(uniqueId);
+        } catch (Exception e) {
+            log.error("Data Historization error :: {}", e.getMessage());
+            return false;
+        }
+    }
 }

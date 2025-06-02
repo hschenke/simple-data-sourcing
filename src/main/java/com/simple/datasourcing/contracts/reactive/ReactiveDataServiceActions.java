@@ -24,9 +24,11 @@ public interface ReactiveDataServiceActions<T, Q> {
 
     Mono<DeleteResult> removeBy(String uniqueId, String tableName);
 
-    Mono<Boolean> dataHistorization(String uniqueId);
-
     Mono<DataEvent<T>> findLastBy(String uniqueId);
 
     Mono<DataEvent<T>> insertBy(DataEvent<T> dataEvent);
+
+    Mono<Boolean> moveToHistory(String uniqueId);
+
+    Mono<Boolean> removeFromBase(String uniqueId);
 }

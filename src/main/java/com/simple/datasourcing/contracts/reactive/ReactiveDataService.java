@@ -64,8 +64,8 @@ public abstract class ReactiveDataService<T, DT, Q> implements ReactiveDataServi
     public Mono<T> getLastBy(String uniqueId) {
         log.info("Get last by id :: [{}]", uniqueId);
         return findLastBy(uniqueId)
-                .map(DataEvent::getData);
-
+                .map(DataEvent::getData)
+                .onErrorResume(error -> Mono.empty());
     }
 
     public Mono<Boolean> deleteBy(String uniqueId) {
@@ -83,5 +83,13 @@ public abstract class ReactiveDataService<T, DT, Q> implements ReactiveDataServi
         log.info("Check deletion by :: [{}]", uniqueId);
         return findLastBy(uniqueId)
                 .map(DataEvent::getDeleted);
+    }
+
+    public Mono<Boolean> dataHistorization(String uniqueId) {
+        return moveToHistory(uniqueId)
+                .flatMap(_ -> removeFromBase(uniqueId))
+                .doOnSuccess(_ -> log.info("Historization completed successfully"))
+                .doOnError(e -> log.error(e.getMessage()))
+                .onErrorResume(_ -> Mono.just(false));
     }
 }

@@ -8,7 +8,7 @@ public interface DataActionsCommon<T> {
 
     boolean truncate();
 
-    List<T> getAllFor(String uniqueId);
+    List<T> getAll(String uniqueId);
 
-    long countFor(String uniqueId);
+    long count(String uniqueId);
 }

@@ -8,7 +8,7 @@ public interface ReactiveDataActionsCommon<T> {
 
     Mono<Boolean> truncate();
 
-    Flux<T> getAllFor(String uniqueId);
+    Flux<T> getAll(String uniqueId);
 
-    Mono<Long> countFor(String uniqueId);
+    Mono<Long> count(String uniqueId);
 }
