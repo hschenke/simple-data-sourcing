@@ -5,14 +5,13 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.datatype.jsr310.*;
 import com.fasterxml.jackson.datatype.jsr310.ser.*;
 import com.simple.datasourcing.contracts.*;
+import com.simple.datasourcing.converter.*;
 import com.simple.datasourcing.model.*;
-import com.simple.datasourcing.sql.converter.*;
 import lombok.*;
 import lombok.extern.slf4j.*;
 import org.springframework.jdbc.core.*;
 
 import java.time.*;
-import java.time.format.*;
 import java.util.*;
 
 @SuppressWarnings("SqlSourceToSinkFlow")
@@ -31,11 +30,9 @@ public abstract class SqlDataService<T> extends DataService<T, JdbcTemplate, Str
     }
 
     private void configureObjectMapper() {
-        // Custom formatter
-        var formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
         // JavaTimeModule with custom serializer and deserializer for ZonedDateTime
         var javaTimeModule = new JavaTimeModule();
-        javaTimeModule.addSerializer(ZonedDateTime.class, new ZonedDateTimeSerializer(formatter));
+        javaTimeModule.addSerializer(ZonedDateTime.class, new ZonedDateTimeSerializer(CustomZonedDateTimeDeserializer.FORMATTER));
         javaTimeModule.addDeserializer(ZonedDateTime.class, new CustomZonedDateTimeDeserializer());
         // Register the module
         objectMapper.registerModule(javaTimeModule);
