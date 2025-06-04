@@ -42,7 +42,10 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
 
     @Override
     public long count(String uniqueId) {
-        return service.countBy(uniqueId, getTableName());
+        log.info("Counting [{}] :: [{}]", uniqueId, getTableName());
+        var counted = service.countBy(uniqueId, getTableName());
+        log.info("Counted :: {}", counted);
+        return counted;
     }
 
     @Override

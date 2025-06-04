@@ -1,8 +1,15 @@
 package com.simple.datasourcing.threaded;
 
+import java.util.concurrent.atomic.*;
 import java.util.function.*;
 
 public class ThreadMaster {
+
+    private final AtomicBoolean completed = new AtomicBoolean(false);
+
+    public Boolean isCompleted() {
+        return completed.get();
+    }
 
     private ThreadMaster() {
     }
@@ -11,16 +18,18 @@ public class ThreadMaster {
         return new ThreadMaster();
     }
 
-    public <T> void virtualWithCallback(Supplier<T> action,
-                                        Consumer<T> callback,
-                                        Consumer<Exception> error) {
+    public <T> ThreadMaster run(Supplier<T> action,
+                                Consumer<T> callback,
+                                Consumer<Exception> error) {
         Thread.ofVirtual().start(() -> {
             try {
                 callback.accept(action.get());
             } catch (Exception e) {
                 error.accept(e);
             }
+            completed.set(true);
         });
+        return this;
     }
 
     public static <T> CallbackOrErrorOrExecuteSetter<T> action(Supplier<T> action) {
@@ -32,7 +41,7 @@ public class ThreadMaster {
 
         CallbackOrErrorOrExecuteSetter<T> onError(Consumer<Exception> error);
 
-        void execute();
+        ThreadMaster execute();
     }
 
     private static class ActionBuilder<T> implements CallbackOrErrorOrExecuteSetter<T> {
@@ -48,8 +57,8 @@ public class ThreadMaster {
         }
 
         @Override
-        public void execute() {
-            ThreadMaster.get().virtualWithCallback(action, callback, error);
+        public ThreadMaster execute() {
+            return ThreadMaster.get().run(action, callback, error);
         }
 
         @Override
