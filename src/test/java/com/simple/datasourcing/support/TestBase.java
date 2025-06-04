@@ -1,4 +1,4 @@
-package com.simple.datasourcing;
+package com.simple.datasourcing.support;
 
 import lombok.extern.slf4j.*;
 import org.junit.jupiter.api.*;
@@ -6,7 +6,7 @@ import org.junit.jupiter.api.*;
 import java.util.*;
 
 @Slf4j
-abstract class TestBase extends TestDataAndSetup {
+public abstract class TestBase extends TestDataAndSetup {
 
     @BeforeEach
     void setup() {
@@ -15,7 +15,7 @@ abstract class TestBase extends TestDataAndSetup {
 
     abstract void truncateData();
 
-    public void runAuditTest() {
+    protected void runAuditTest() {
         setDataActions(testData1);
         checkTableNames(TestData1.class.getSimpleName().toLowerCase(), TestData1.class.getSimpleName().toLowerCase() + "_history");
         checkCreate(uniqueId, testData1);
@@ -35,7 +35,7 @@ abstract class TestBase extends TestDataAndSetup {
         checkCountHistory(uniqueId, 0L);
     }
 
-    void runActionsFor(TestData testData) {
+    protected void runActionsFor(TestData testData) {
         setDataActions(testData);
         checkCreate(uniqueId, testData);
         checkCount(uniqueId, 1L);

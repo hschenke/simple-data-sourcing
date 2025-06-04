@@ -1,4 +1,4 @@
-package com.simple.datasourcing;
+package com.simple.datasourcing.support;
 
 import com.simple.datasourcing.contracts.*;
 import lombok.extern.slf4j.*;
@@ -8,7 +8,7 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.*;
 
 @Slf4j
-class DataSourcingTestBase extends TestBase {
+public class DataSourcingTestBase extends TestBase {
 
     DataActions<?> dataActions;
     DataActions<?>.History dataActionsHistory;

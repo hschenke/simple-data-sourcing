@@ -23,7 +23,7 @@ public class DataEvent<T> {
         return new DataEvent<>();
     }
 
-    public DataEvent<T> setData(String uniqueId, Boolean deleted, T data) {
+    public DataEvent<T> setDataset(String uniqueId, Boolean deleted, T data) {
         this.uniqueId = uniqueId;
         this.deleted = deleted;
         this.data = data;

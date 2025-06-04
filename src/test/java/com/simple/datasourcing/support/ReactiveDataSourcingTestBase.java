@@ -1,4 +1,4 @@
-package com.simple.datasourcing;
+package com.simple.datasourcing.support;
 
 import com.simple.datasourcing.contracts.reactive.*;
 import lombok.extern.slf4j.*;
@@ -9,7 +9,7 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.*;
 
 @Slf4j
-class ReactiveDataSourcingTestBase extends TestBase {
+public class ReactiveDataSourcingTestBase extends TestBase {
 
     ReactiveDataActions<?> dataActions;
     ReactiveDataActions<?>.History dataActionsHistory;
@@ -76,7 +76,7 @@ class ReactiveDataSourcingTestBase extends TestBase {
     @Override
     protected void checkGetAllEqual(String uniqueId, int count, List<TestData> testDataList) {
         StepVerifier.FirstStep<?> getAll = StepVerifier.create(dataActions.getAll(uniqueId));
-        testDataList.forEach(testData -> getAll.expectNextMatches(Objects::nonNull));
+        testDataList.forEach(_ -> getAll.expectNextMatches(Objects::nonNull));
         getAll.verifyComplete();
     }
 

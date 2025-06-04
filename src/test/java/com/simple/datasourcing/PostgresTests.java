@@ -1,6 +1,7 @@
 package com.simple.datasourcing;
 
 import com.simple.datasourcing.postgres.*;
+import com.simple.datasourcing.support.*;
 import lombok.extern.slf4j.*;
 import org.junit.jupiter.api.*;
 import org.springframework.test.annotation.*;
@@ -42,26 +43,4 @@ class PostgresTests extends DataSourcingTestBase {
     void allActions3() {
         runActionsFor(testData3);
     }
-
-//    @Test
-//    void zonedDateTimeTest() throws JsonProcessingException {
-//        var objectMapper = new ObjectMapper();
-//        // Custom formatter
-//        DateTimeFormatter formatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
-//
-//        // JavaTimeModule with custom serializer for ZonedDateTime
-//        JavaTimeModule javaTimeModule = new JavaTimeModule();
-//        javaTimeModule.addSerializer(ZonedDateTime.class, new ZonedDateTimeSerializer(formatter));
-//        javaTimeModule.addDeserializer(ZonedDateTime.class, new CustomZonedDateTimeDeserializer());
-//
-//        // Register the module
-//        objectMapper.registerModule(javaTimeModule);
-//        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-//
-//        var now = ZonedDateTime.now();
-//        System.out.println(now);
-//        var mapped = objectMapper.writeValueAsString(now);
-//        System.out.println(mapped);
-//        System.out.println(objectMapper.readValue(mapped, ZonedDateTime.class));
-//    }
 }

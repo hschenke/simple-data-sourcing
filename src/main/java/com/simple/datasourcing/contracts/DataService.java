@@ -41,7 +41,7 @@ public abstract class DataService<T, DT, Q> implements DataServiceActions<T, Q> 
 
     public boolean createBy(String uniqueId, T data) {
         log.info("Insert data :: [{}] - {}", uniqueId, data);
-        return insertBy(DataEvent.<T>create().setData(uniqueId, Boolean.FALSE, data));
+        return insertBy(DataEvent.<T>create().setDataset(uniqueId, Boolean.FALSE, data));
     }
 
     public T getLastBy(String uniqueId) {
@@ -54,7 +54,7 @@ public abstract class DataService<T, DT, Q> implements DataServiceActions<T, Q> 
     public boolean deleteBy(String uniqueId) {
         log.info("Delete base by id :: [{}]", uniqueId);
         if (dataHistorization(uniqueId))
-            return insertBy(DataEvent.<T>create().setData(uniqueId, Boolean.TRUE, null));
+            return insertBy(DataEvent.<T>create().setDataset(uniqueId, Boolean.TRUE, null));
         return false;
     }
 

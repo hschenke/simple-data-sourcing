@@ -55,7 +55,7 @@ public abstract class ReactiveDataService<T, DT, Q> implements ReactiveDataServi
     }
 
     public Mono<Boolean> createBy(String uniqueId, T data) {
-        return insertBy(DataEvent.<T>create().setData(uniqueId, Boolean.FALSE, data))
+        return insertBy(DataEvent.<T>create().setDataset(uniqueId, Boolean.FALSE, data))
                 .doOnSuccess(de -> log.info("Inserted data :: {}", de))
                 .doOnError(error -> log.error("Error :: not inserted :: {}", error.getMessage()))
                 .hasElement();
@@ -65,7 +65,7 @@ public abstract class ReactiveDataService<T, DT, Q> implements ReactiveDataServi
         log.info("Get last by id :: [{}]", uniqueId);
         return findLastBy(uniqueId)
                 .map(DataEvent::getData)
-                .onErrorResume(error -> Mono.empty());
+                .onErrorResume(_ -> Mono.empty());
     }
 
     public Mono<Boolean> deleteBy(String uniqueId) {
@@ -73,7 +73,7 @@ public abstract class ReactiveDataService<T, DT, Q> implements ReactiveDataServi
         return dataHistorization(uniqueId)
                 .flatMap(historized -> {
                     if (historized)
-                        return insertBy(DataEvent.<T>create().setData(uniqueId, Boolean.TRUE, null)).hasElement();
+                        return insertBy(DataEvent.<T>create().setDataset(uniqueId, Boolean.TRUE, null)).hasElement();
                     else
                         return Mono.just(false);
                 });
