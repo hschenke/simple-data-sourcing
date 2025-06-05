@@ -77,7 +77,6 @@ public abstract class SqlDataService<T> extends DataService<T, JdbcTemplate, Str
 
     @Override
     public boolean truncate(String tableName) {
-        log.info("Truncating table {}", tableName);
         dataTemplate().execute("TRUNCATE TABLE %s".formatted(tableName));
         return true;
     }

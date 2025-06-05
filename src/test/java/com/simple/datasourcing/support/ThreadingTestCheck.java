@@ -10,7 +10,7 @@ import java.util.function.*;
 import static org.awaitility.Awaitility.*;
 
 @Slf4j
-public class ThreadingTestHelper<T> {
+public class ThreadingTestCheck<T> {
 
     private final AtomicReference<T> successResult = new AtomicReference<>();
     private final AtomicReference<Exception> errorResult = new AtomicReference<>();

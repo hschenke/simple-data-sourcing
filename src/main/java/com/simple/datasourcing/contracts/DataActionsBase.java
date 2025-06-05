@@ -1,5 +1,7 @@
 package com.simple.datasourcing.contracts;
 
+import com.simple.datasourcing.threaded.*;
+
 public interface DataActionsBase<T> extends DataActionsCommon<T> {
 
     boolean create(String uniqueId, T data);
@@ -7,6 +9,8 @@ public interface DataActionsBase<T> extends DataActionsCommon<T> {
     T getLast(String uniqueId);
 
     boolean delete(String uniqueId);
+
+    ThreadMaster deleteInBackground(String uniqueId);
 
     boolean isDeleted(String uniqueId);
 }

@@ -13,11 +13,6 @@ class ReactiveMongoTests extends ReactiveDataSourcingTestBase {
         mongoDBContainer.start();
     }
 
-    @AfterAll
-    static void tearDown() {
-        mongoDBContainer.stop();
-    }
-
     public ReactiveMongoTests() {
         super(new ReactiveMongoDataMaster(mongoDBContainer.getReplicaSetUrl()));
     }

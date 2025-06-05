@@ -59,19 +59,13 @@ class ThreadingTests extends TestDataAndSetup {
         return new RuntimeException("Test error");
     }
 
-    private <T> @NotNull ThreadingTestHelper<T> getThreadingTestHelper(TestCase<T> testCase) {
-        var helper = new ThreadingTestHelper<T>();
+    private <T> @NotNull ThreadingTestCheck<T> getThreadingTestHelper(TestCase<T> testCase) {
+        var helper = new ThreadingTestCheck<T>();
 
         ThreadMaster.action(testCase.processor)
                 .callback(helper.getSuccessCallback())
                 .onError(helper.getErrorCallback())
                 .execute();
-
-//        ThreadMaster.get().virtualWithCallback(
-//                testCase.processor(),
-//                helper.getSuccessCallback(),
-//                helper.getErrorCallback()
-//        );
 
         helper.awaitCompletion(Duration.ofSeconds(5));
         return helper;

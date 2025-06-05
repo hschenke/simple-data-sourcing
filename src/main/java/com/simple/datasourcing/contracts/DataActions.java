@@ -1,5 +1,6 @@
 package com.simple.datasourcing.contracts;
 
+import com.simple.datasourcing.threaded.*;
 import lombok.extern.slf4j.*;
 
 import java.util.*;
@@ -22,6 +23,7 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
 
     @Override
     public boolean truncate() {
+        log.info("Truncating table {}", getTableName());
         return service.truncate(getTableName());
     }
 
@@ -51,6 +53,11 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
     @Override
     public boolean delete(String uniqueId) {
         return service.deleteBy(uniqueId);
+    }
+
+    @Override
+    public ThreadMaster deleteInBackground(String uniqueId) {
+        return ThreadMaster.action(() -> delete(uniqueId)).execute();
     }
 
     @Override
@@ -91,7 +98,8 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
 
         @Override
         public boolean remove(String uniqueId) {
-            return service.removeBy(uniqueId, service.getTableNameHistory());
+            log.info("Removing [{}] from [{}]", uniqueId, getTableName());
+            return service.removeBy(uniqueId, getTableName());
         }
     }
 }

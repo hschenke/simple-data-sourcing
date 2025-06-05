@@ -66,8 +66,15 @@ public abstract class DataService<T, DT, Q> implements DataServiceActions<T, Q> 
     }
 
     public boolean dataHistorization(String uniqueId) {
+        log.info("Data Historization of [{}]", uniqueId);
         try {
-            return moveToHistory(uniqueId) && removeFromBase(uniqueId);
+            log.info("First move to history...");
+            var moveToHistory = moveToHistory(uniqueId);
+            log.info("Success :: [{}]", moveToHistory);
+            log.info("Second remove from base...");
+            var removeFromBase = removeFromBase(uniqueId);
+            log.info("Success :: [{}]", removeFromBase);
+            return moveToHistory && removeFromBase;
         } catch (Exception e) {
             log.error("Data Historization error :: {}", e.getMessage());
             return false;

@@ -2,7 +2,6 @@ package com.simple.datasourcing.mongo;
 
 import com.simple.datasourcing.contracts.*;
 import com.simple.datasourcing.model.*;
-import lombok.extern.slf4j.*;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.*;
 import org.springframework.data.mongodb.core.query.*;
@@ -11,7 +10,6 @@ import java.util.*;
 
 import static org.springframework.data.mongodb.core.query.Criteria.*;
 
-@Slf4j
 public class MongoDataService<T> extends DataService<T, MongoTemplate, Query> {
 
     public MongoDataService(MongoDataConnection mongoDataConnection, Class<T> clazz) {
@@ -43,7 +41,6 @@ public class MongoDataService<T> extends DataService<T, MongoTemplate, Query> {
 
     @Override
     public boolean truncate(String tableName) {
-        log.info("Truncating table {}", tableName);
         return dataTemplate().remove(new Query(), tableName).wasAcknowledged();
     }
 
@@ -76,8 +73,7 @@ public class MongoDataService<T> extends DataService<T, MongoTemplate, Query> {
 
     @Override
     public boolean insertBy(DataEvent<T> dataEvent) {
-        dataTemplate().insert(dataEvent, getTableNameBase());
-        return true;
+        return dataTemplate().insert(dataEvent, getTableNameBase()).getUniqueId() != null;
     }
 
     @Override
