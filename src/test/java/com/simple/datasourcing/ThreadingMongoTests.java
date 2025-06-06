@@ -29,6 +29,8 @@ public class ThreadingMongoTests extends TestDataAndSetup {
 
     @Test
     void testThreadingMongo() {
+        var booleanTDA = new ThreadDataAction<Boolean>();
+
         assertThreadDataAction(ThreadDataAction.constructComplete(() -> dataActions.create(uniqueId, testData1)), true);
         assertThreadDataAction(ThreadDataAction.constructComplete(() -> {
             dataActions.create(uniqueId, testData1);
@@ -37,15 +39,20 @@ public class ThreadingMongoTests extends TestDataAndSetup {
 
         assertThat(dataActions.history().count(uniqueId)).isEqualTo(0L);
 
-        var threadDataAction = dataActions.deleteInBackgroundCallback(uniqueId);
-        await().until(threadDataAction::isCompleted);
-        assertThat(threadDataAction.getSuccessResult()).isTrue();
+        await().until(dataActions.deleteInBackgroundCallback(uniqueId, booleanTDA.getSuccessCallback(), booleanTDA.getErrorCallback())::isCompleted);
+        assertThat(booleanTDA.getSuccessResult()).isTrue();
 
         assertThreadDataAction(ThreadDataAction.constructComplete(() -> dataActions.count(uniqueId)), 1L);
 
         assertThat(dataActions.history().count(uniqueId)).isEqualTo(2L);
-        assertThat(dataActions.history().remove(uniqueId)).isTrue();
+
+        await().until(dataActions.history().removeInBackgroundCallback(uniqueId, booleanTDA.getSuccessCallback(), booleanTDA.getErrorCallback())::isCompleted);
+        assertThat(booleanTDA.getSuccessResult()).isTrue();
+
         assertThat(dataActions.history().count(uniqueId)).isEqualTo(0L);
+
+        await().until(dataActions.history().historizationInBackgroundCallback(uniqueId, booleanTDA.getSuccessCallback(), booleanTDA.getErrorCallback())::isCompleted);
+        assertThat(booleanTDA.getSuccessResult()).isTrue();
 
         await().until(dataActions.deleteInBackground(uniqueId)::isCompleted);
     }

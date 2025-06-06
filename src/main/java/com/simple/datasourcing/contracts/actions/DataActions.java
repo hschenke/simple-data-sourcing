@@ -5,6 +5,7 @@ import com.simple.datasourcing.thread.*;
 import lombok.extern.slf4j.*;
 
 import java.util.*;
+import java.util.function.*;
 
 @Slf4j
 public abstract class DataActions<T> implements DataActionsBase<T> {
@@ -62,8 +63,12 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
     }
 
     @Override
-    public ThreadDataAction<Boolean> deleteInBackgroundCallback(String uniqueId) {
-        return ThreadDataAction.constructComplete(() -> delete(uniqueId));
+    public ThreadMaster deleteInBackgroundCallback(String uniqueId, Consumer<Boolean> callback, Consumer<Exception> errorCallback) {
+        return ThreadMaster
+                .action(() -> delete(uniqueId))
+                .callback(callback)
+                .onError(errorCallback)
+                .execute();
     }
 
     @Override
@@ -108,8 +113,12 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
         }
 
         @Override
-        public ThreadDataAction<Boolean> historizationInBackgroundCallback(String uniqueId) {
-            return ThreadDataAction.constructComplete(() -> historization(uniqueId));
+        public ThreadMaster historizationInBackgroundCallback(String uniqueId, Consumer<Boolean> callback, Consumer<Exception> errorCallback) {
+            return ThreadMaster
+                    .action(() -> historization(uniqueId))
+                    .callback(callback)
+                    .onError(errorCallback)
+                    .execute();
         }
 
         @Override
@@ -124,8 +133,12 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
         }
 
         @Override
-        public ThreadDataAction<Boolean> removeInBackgroundCallback(String uniqueId) {
-            return ThreadDataAction.constructComplete(() -> remove(uniqueId));
+        public ThreadMaster removeInBackgroundCallback(String uniqueId, Consumer<Boolean> callback, Consumer<Exception> errorCallback) {
+            return ThreadMaster
+                    .action(() -> remove(uniqueId))
+                    .callback(callback)
+                    .onError(errorCallback)
+                    .execute();
         }
     }
 }

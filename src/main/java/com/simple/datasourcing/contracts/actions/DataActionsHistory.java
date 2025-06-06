@@ -2,17 +2,19 @@ package com.simple.datasourcing.contracts.actions;
 
 import com.simple.datasourcing.thread.*;
 
+import java.util.function.*;
+
 public interface DataActionsHistory<T> extends DataActionsCommon<T> {
 
     boolean historization(String uniqueId);
 
     ThreadMaster historizationInBackground(String uniqueId);
 
-    ThreadDataAction<Boolean> historizationInBackgroundCallback(String uniqueId);
+    ThreadMaster historizationInBackgroundCallback(String uniqueId, Consumer<Boolean> callback, Consumer<Exception> errorCallback);
 
     boolean remove(String uniqueId);
 
     ThreadMaster removeInBackground(String uniqueId);
 
-    ThreadDataAction<Boolean> removeInBackgroundCallback(String uniqueId);
+    ThreadMaster removeInBackgroundCallback(String uniqueId, Consumer<Boolean> callback, Consumer<Exception> errorCallback);
 }
