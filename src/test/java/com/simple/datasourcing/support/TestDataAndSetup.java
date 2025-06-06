@@ -1,6 +1,5 @@
 package com.simple.datasourcing.support;
 
-import com.github.dockerjava.api.model.*;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.testcontainers.service.connection.*;
 import org.testcontainers.containers.*;
@@ -13,17 +12,13 @@ public abstract class TestDataAndSetup {
 
     @ServiceConnection
     public static MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:latest"))
-            .withCreateContainerCmdModifier(cmd -> cmd.withHostConfig(
-                    new HostConfig().withPortBindings(new PortBinding(
-                            Ports.Binding.bindPort(27017), new ExposedPort(27017)))))
+            //.withCreateContainerCmdModifier(cmd -> cmd.withHostConfig(new HostConfig().withPortBindings(new PortBinding(Ports.Binding.bindPort(27017), new ExposedPort(27017)))))
             .withReuse(true);
 
     @SuppressWarnings("resource")
     @ServiceConnection
     public static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"))
-            .withCreateContainerCmdModifier(cmd -> cmd.withHostConfig(
-                    new HostConfig().withPortBindings(new PortBinding(
-                            Ports.Binding.bindPort(5432), new ExposedPort(5432)))))
+            //.withCreateContainerCmdModifier(cmd -> cmd.withHostConfig(new HostConfig().withPortBindings(new PortBinding(Ports.Binding.bindPort(5432), new ExposedPort(5432)))))
             .withReuse(true);
 
     public static String uniqueId = "holli";
