@@ -1,6 +1,6 @@
 package com.simple.datasourcing.postgres;
 
-import com.simple.datasourcing.contracts.*;
+import com.simple.datasourcing.contracts.connection.*;
 import lombok.extern.slf4j.*;
 import org.springframework.boot.jdbc.*;
 import org.springframework.jdbc.core.*;

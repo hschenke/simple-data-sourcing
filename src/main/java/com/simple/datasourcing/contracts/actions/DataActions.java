@@ -1,6 +1,7 @@
-package com.simple.datasourcing.contracts;
+package com.simple.datasourcing.contracts.actions;
 
-import com.simple.datasourcing.threaded.*;
+import com.simple.datasourcing.contracts.service.*;
+import com.simple.datasourcing.thread.*;
 import lombok.extern.slf4j.*;
 
 import java.util.*;
@@ -61,6 +62,11 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
     }
 
     @Override
+    public ThreadDataAction<Boolean> deleteInBackgroundCallback(String uniqueId) {
+        return ThreadDataAction.constructComplete(() -> delete(uniqueId));
+    }
+
+    @Override
     public boolean isDeleted(String uniqueId) {
         return service.isDeletedBy(uniqueId);
     }
@@ -97,9 +103,29 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
         }
 
         @Override
+        public ThreadMaster historizationInBackground(String uniqueId) {
+            return ThreadMaster.action(() -> historization(uniqueId)).execute();
+        }
+
+        @Override
+        public ThreadDataAction<Boolean> historizationInBackgroundCallback(String uniqueId) {
+            return ThreadDataAction.constructComplete(() -> historization(uniqueId));
+        }
+
+        @Override
         public boolean remove(String uniqueId) {
             log.info("Removing [{}] from [{}]", uniqueId, getTableName());
             return service.removeBy(uniqueId, getTableName());
+        }
+
+        @Override
+        public ThreadMaster removeInBackground(String uniqueId) {
+            return ThreadMaster.action(() -> remove(uniqueId)).execute();
+        }
+
+        @Override
+        public ThreadDataAction<Boolean> removeInBackgroundCallback(String uniqueId) {
+            return ThreadDataAction.constructComplete(() -> remove(uniqueId));
         }
     }
 }

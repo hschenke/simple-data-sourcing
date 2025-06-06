@@ -2,7 +2,7 @@ package com.simple.datasourcing.mongo.reactive;
 
 import com.mongodb.*;
 import com.mongodb.reactivestreams.client.*;
-import com.simple.datasourcing.contracts.*;
+import com.simple.datasourcing.contracts.connection.*;
 import com.simple.datasourcing.mongo.*;
 import lombok.extern.slf4j.*;
 import org.springframework.data.mongodb.core.*;

@@ -1,6 +1,6 @@
 package com.simple.datasourcing.contracts.reactive;
 
-import com.simple.datasourcing.contracts.*;
+import com.simple.datasourcing.contracts.connection.*;
 import lombok.*;
 import lombok.extern.slf4j.*;
 

@@ -2,17 +2,17 @@ package com.simple.datasourcing;
 
 import com.simple.datasourcing.model.*;
 import com.simple.datasourcing.support.*;
-import com.simple.datasourcing.threaded.*;
+import com.simple.datasourcing.thread.*;
 import org.jetbrains.annotations.*;
 import org.junit.jupiter.params.*;
 import org.junit.jupiter.params.provider.*;
 
-import java.time.*;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.awaitility.Awaitility.*;
 
 class ThreadingTests extends TestDataAndSetup {
 
@@ -59,22 +59,29 @@ class ThreadingTests extends TestDataAndSetup {
         return new RuntimeException("Test error");
     }
 
-    private <T> @NotNull ThreadingTestCheck<T> getThreadingTestHelper(TestCase<T> testCase) {
-        var helper = new ThreadingTestCheck<T>();
+    private <T> ThreadDataAction<T> getThreadingTestHelper(TestCase<T> testCase) {
+        ThreadDataAction<T> threadDataAction = new ThreadDataAction<>();
 
-        ThreadMaster.action(testCase.processor)
-                .callback(helper.getSuccessCallback())
-                .onError(helper.getErrorCallback())
+        var executed = ThreadMaster.action(testCase.processor)
+                .callback(threadDataAction.getSuccessCallback())
+                .onError(threadDataAction.getErrorCallback())
                 .execute();
 
-        helper.awaitCompletion(Duration.ofSeconds(5));
-        return helper;
+        await().until(executed::isCompleted);
+
+        return threadDataAction;
     }
 
     record TestCase<T>(Supplier<T> processor, T expectedResult) {
+
         @Override
         public @NotNull String toString() {
             return expectedResult.toString();
         }
+    }
+
+    @Override
+    protected void truncateData() {
+
     }
 }

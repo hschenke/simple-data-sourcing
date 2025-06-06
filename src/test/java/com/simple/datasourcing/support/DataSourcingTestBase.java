@@ -1,6 +1,7 @@
 package com.simple.datasourcing.support;
 
-import com.simple.datasourcing.contracts.*;
+import com.simple.datasourcing.contracts.actions.*;
+import com.simple.datasourcing.contracts.master.*;
 import lombok.extern.slf4j.*;
 
 import java.util.*;
@@ -23,7 +24,7 @@ public class DataSourcingTestBase extends TestBase {
         this.da3 = dataMaster.getDataActions(TestData3.class);
     }
 
-    void truncateData() {
+    protected void truncateData() {
         da1.truncate();
         da1.history().truncate();
         da2.truncate();

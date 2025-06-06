@@ -1,6 +1,6 @@
 package com.simple.datasourcing.mongo;
 
-import com.simple.datasourcing.contracts.*;
+import com.simple.datasourcing.contracts.actions.*;
 import lombok.*;
 import lombok.extern.slf4j.*;
 

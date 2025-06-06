@@ -1,6 +1,6 @@
 package com.simple.datasourcing.mongo;
 
-import com.simple.datasourcing.contracts.*;
+import com.simple.datasourcing.contracts.service.*;
 import com.simple.datasourcing.model.*;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.*;

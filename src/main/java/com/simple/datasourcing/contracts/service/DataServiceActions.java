@@ -1,4 +1,4 @@
-package com.simple.datasourcing.contracts;
+package com.simple.datasourcing.contracts.service;
 
 import com.simple.datasourcing.model.*;
 

@@ -1,4 +1,4 @@
-package com.simple.datasourcing.threaded;
+package com.simple.datasourcing.thread;
 
 import java.util.concurrent.atomic.*;
 import java.util.function.*;

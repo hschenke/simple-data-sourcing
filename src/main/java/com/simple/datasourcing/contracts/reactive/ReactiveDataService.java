@@ -1,6 +1,6 @@
 package com.simple.datasourcing.contracts.reactive;
 
-import com.simple.datasourcing.contracts.*;
+import com.simple.datasourcing.contracts.connection.*;
 import com.simple.datasourcing.error.*;
 import com.simple.datasourcing.model.*;
 import lombok.*;

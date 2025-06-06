@@ -1,5 +1,6 @@
-package com.simple.datasourcing.contracts;
+package com.simple.datasourcing.contracts.service;
 
+import com.simple.datasourcing.contracts.connection.*;
 import com.simple.datasourcing.error.*;
 import com.simple.datasourcing.model.*;
 import lombok.*;

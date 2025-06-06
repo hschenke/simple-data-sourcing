@@ -2,7 +2,7 @@ package com.simple.datasourcing.mongo;
 
 import com.mongodb.*;
 import com.mongodb.client.*;
-import com.simple.datasourcing.contracts.*;
+import com.simple.datasourcing.contracts.connection.*;
 import lombok.extern.slf4j.*;
 import org.springframework.data.mongodb.core.*;
 

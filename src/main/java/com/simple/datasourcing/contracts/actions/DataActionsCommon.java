@@ -1,4 +1,4 @@
-package com.simple.datasourcing.contracts;
+package com.simple.datasourcing.contracts.actions;
 
 import java.util.*;
 

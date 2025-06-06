@@ -1,6 +1,6 @@
-package com.simple.datasourcing.contracts;
+package com.simple.datasourcing.contracts.actions;
 
-import com.simple.datasourcing.threaded.*;
+import com.simple.datasourcing.thread.*;
 
 public interface DataActionsBase<T> extends DataActionsCommon<T> {
 
@@ -11,6 +11,8 @@ public interface DataActionsBase<T> extends DataActionsCommon<T> {
     boolean delete(String uniqueId);
 
     ThreadMaster deleteInBackground(String uniqueId);
+
+    ThreadDataAction<Boolean> deleteInBackgroundCallback(String uniqueId);
 
     boolean isDeleted(String uniqueId);
 }

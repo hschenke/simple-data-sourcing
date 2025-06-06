@@ -1,6 +1,6 @@
 package com.simple.datasourcing.postgres;
 
-import com.simple.datasourcing.contracts.*;
+import com.simple.datasourcing.contracts.actions.*;
 import lombok.*;
 import lombok.extern.slf4j.*;
 

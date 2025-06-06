@@ -1,19 +1,11 @@
 package com.simple.datasourcing.support;
 
 import lombok.extern.slf4j.*;
-import org.junit.jupiter.api.*;
 
 import java.util.*;
 
 @Slf4j
 public abstract class TestBase extends TestDataAndSetup {
-
-    @BeforeEach
-    void setup() {
-        truncateData();
-    }
-
-    abstract void truncateData();
 
     protected void runAuditTest() {
         setDataActions(testData1);

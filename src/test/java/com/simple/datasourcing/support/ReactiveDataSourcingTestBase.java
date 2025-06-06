@@ -24,7 +24,7 @@ public class ReactiveDataSourcingTestBase extends TestBase {
         this.da3 = dataMaster.getDataActions(TestData3.class);
     }
 
-    void truncateData() {
+    protected void truncateData() {
         da1.truncate().subscribe();
         da1.history().truncate().subscribe();
         da2.truncate().subscribe();

@@ -1,4 +1,4 @@
-package com.simple.datasourcing.support;
+package com.simple.datasourcing.thread;
 
 import lombok.extern.slf4j.*;
 
@@ -7,14 +7,16 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import java.util.function.*;
 
-import static org.awaitility.Awaitility.*;
-
 @Slf4j
-public class ThreadingTestCheck<T> {
+public class ThreadDataAction<T> {
 
     private final AtomicReference<T> successResult = new AtomicReference<>();
     private final AtomicReference<Exception> errorResult = new AtomicReference<>();
     private final AtomicBoolean completed = new AtomicBoolean(false);
+
+    public Boolean isCompleted() {
+        return completed.get();
+    }
 
     public Consumer<T> getSuccessCallback() {
         return result -> {
@@ -30,10 +32,6 @@ public class ThreadingTestCheck<T> {
             errorResult.set(error);
             completed.set(true);
         };
-    }
-
-    public void awaitCompletion(Duration timeout) {
-        await().atMost(timeout).until(completed::get);
     }
 
     public T getSuccessResult() {
@@ -62,5 +60,15 @@ public class ThreadingTestCheck<T> {
         return captureCallbackResult(callbackInvoker)
                 .orTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS)
                 .join();
+    }
+
+    public static <T> ThreadDataAction<T> constructComplete(Supplier<T> action) {
+        ThreadDataAction<T> threadDataAction = new ThreadDataAction<>();
+        ThreadMaster
+                .action(action)
+                .callback(threadDataAction.getSuccessCallback())
+                .onError(threadDataAction.getErrorCallback())
+                .execute();
+        return threadDataAction;
     }
 }

@@ -1,5 +1,7 @@
-package com.simple.datasourcing.contracts;
+package com.simple.datasourcing.contracts.master;
 
+import com.simple.datasourcing.contracts.connection.*;
+import com.simple.datasourcing.contracts.service.*;
 import lombok.*;
 import lombok.extern.slf4j.*;
 
