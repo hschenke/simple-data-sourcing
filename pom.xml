@@ -11,7 +11,7 @@
         <repository>
             <id>github</id>
             <name>GitHub hschenke Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/hschenke/SimpleDataSourcing</url>
+            <url>https://maven.pkg.github.com/hschenke/simple-data-sourcing</url>
         </repository>
     </distributionManagement>
 
