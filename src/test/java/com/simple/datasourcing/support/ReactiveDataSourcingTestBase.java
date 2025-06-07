@@ -9,7 +9,7 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.*;
 
 @Slf4j
-public class ReactiveDataSourcingTestBase extends TestBase {
+public class ReactiveDataSourcingTestBase extends AuditTestBase {
 
     ReactiveDataActions<?> dataActions;
     ReactiveDataActions<?>.History dataActionsHistory;

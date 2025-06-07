@@ -5,7 +5,7 @@
 
     <groupId>com.holli.simple</groupId>
     <artifactId>datasourcing</artifactId>
-    <version>0.6.3</version>
+    <version>0.6.4</version>
 
     <distributionManagement>
         <repository>
@@ -107,11 +107,6 @@
             <artifactId>commons-compress</artifactId>
             <version>1.27.1</version>
         </dependency>
-
-        <!--        <dependency>-->
-        <!--            <groupId>org.springframework.boot</groupId>-->
-        <!--            <artifactId>spring-boot-starter-webflux</artifactId>-->
-        <!--        </dependency>-->
     </dependencies>
 
     <build>

@@ -5,7 +5,7 @@ import lombok.extern.slf4j.*;
 import java.util.*;
 
 @Slf4j
-public abstract class TestBase extends TestDataAndSetup {
+public abstract class AuditTestBase extends TestcontainerSetup {
 
     protected void runAuditTest() {
         setDataActions(testData1);

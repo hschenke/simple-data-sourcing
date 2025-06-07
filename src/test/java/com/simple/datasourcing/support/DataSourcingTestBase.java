@@ -9,14 +9,14 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.*;
 
 @Slf4j
-public class DataSourcingTestBase extends TestBase {
+public class DataSourcingTestBase extends AuditTestBase {
 
-    DataActions<?> dataActions;
-    DataActions<?>.History dataActionsHistory;
+    public DataActions<?> dataActions;
+    public DataActions<?>.History dataActionsHistory;
 
-    DataActions<TestData1> da1;
-    DataActions<TestData2> da2;
-    DataActions<TestData3> da3;
+    public DataActions<TestData1> da1;
+    public DataActions<TestData2> da2;
+    public DataActions<TestData3> da3;
 
     public DataSourcingTestBase(DataMaster dataMaster) {
         this.da1 = dataMaster.getDataActions(TestData1.class);

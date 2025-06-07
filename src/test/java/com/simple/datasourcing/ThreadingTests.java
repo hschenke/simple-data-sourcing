@@ -14,7 +14,7 @@ import java.util.stream.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.awaitility.Awaitility.*;
 
-class ThreadingTests extends TestDataAndSetup {
+class ThreadingTests extends TestDataBase {
 
     static Stream<TestCase<?>> testData() {
         var testData1DataEvent = DataEvent.<TestData1>create().setDataset("holli", false, new TestData1("1", "name", Boolean.TRUE));
@@ -73,15 +73,9 @@ class ThreadingTests extends TestDataAndSetup {
     }
 
     record TestCase<T>(Supplier<T> processor, T expectedResult) {
-
         @Override
         public @NotNull String toString() {
             return expectedResult.toString();
         }
-    }
-
-    @Override
-    protected void truncateData() {
-
     }
 }
