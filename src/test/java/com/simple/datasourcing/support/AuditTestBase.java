@@ -4,8 +4,9 @@ import lombok.extern.slf4j.*;
 
 import java.util.*;
 
+@SuppressWarnings("SameParameterValue")
 @Slf4j
-public abstract class AuditTestBase extends TestcontainerSetup {
+public abstract class AuditTestBase extends TestcontainerSetup implements TestDataContract {
 
     protected void runAuditTest() {
         setDataActions(testData1);

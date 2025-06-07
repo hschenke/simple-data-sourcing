@@ -14,7 +14,7 @@ import java.util.stream.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.awaitility.Awaitility.*;
 
-class ThreadingTests extends TestDataBase {
+class ThreadingTests implements TestDataContract {
 
     static Stream<TestCase<?>> testData() {
         var testData1DataEvent = DataEvent.<TestData1>create().setDataset("holli", false, new TestData1("1", "name", Boolean.TRUE));

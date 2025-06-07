@@ -1,11 +1,12 @@
 package com.simple.datasourcing.support;
 
-import org.junit.jupiter.api.*;
-import org.springframework.boot.testcontainers.service.connection.*;
-import org.testcontainers.containers.*;
-import org.testcontainers.utility.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.utility.DockerImageName;
 
-public abstract class TestcontainerSetup extends TestDataBase {
+public abstract class TestcontainerSetup {
 
     @ServiceConnection
     public static MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:latest"))
