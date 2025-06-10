@@ -33,7 +33,7 @@ public class ThreadDataSourcingTestBase extends DataSourcingTestBase {
     }
 
     @Override
-    protected void checkGetAllEqual(String uniqueId, int count, List<TestData> testDataList) {
+    protected void checkGetAllCountEqual(String uniqueId, int count, List<TestData> testDataList) {
         assertThreadDataAction(ThreadDataAction.constructComplete(() -> dataActions.getAll(uniqueId)), testDataList);
     }
 

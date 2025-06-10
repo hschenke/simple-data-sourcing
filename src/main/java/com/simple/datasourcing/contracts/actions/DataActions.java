@@ -1,6 +1,7 @@
 package com.simple.datasourcing.contracts.actions;
 
 import com.simple.datasourcing.contracts.service.*;
+import com.simple.datasourcing.model.*;
 import com.simple.datasourcing.thread.*;
 import lombok.extern.slf4j.*;
 
@@ -8,10 +9,11 @@ import java.util.*;
 import java.util.function.*;
 
 @Slf4j
-public abstract class DataActions<T> implements DataActionsBase<T> {
+public class DataActions<T> implements DataActionsBase<T> {
 
     private final DataService<T, ?, ?> service;
     private final History history;
+    public boolean onDeleteDoDataHistorization = true;
 
     protected DataActions(DataService<T, ?, ?> service) {
         this.service = service;
@@ -31,17 +33,32 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
 
     @Override
     public boolean create(String uniqueId, T data) {
-        return service.createBy(uniqueId, data);
+        log.info("Insert data :: [{}] - {}", uniqueId, data);
+        return service.insertBy(DataEvent.<T>create().setDataset(uniqueId, Boolean.FALSE, data));
+    }
+
+    @Override
+    public List<DataEvent<T>> getAll() {
+        log.info("Find all by table :: [{}]", getTableName());
+        return service.findAll(getTableName());
     }
 
     @Override
     public List<T> getAll(String uniqueId) {
-        return service.findAllBy(uniqueId, getTableName());
+        return findAllBy(uniqueId, getTableName());
+    }
+
+    @Override
+    public List<String> getAllIds() {
+        return getAll().stream().map(DataEvent::getUniqueId).toList();
     }
 
     @Override
     public T getLast(String uniqueId) {
-        return service.getLastBy(uniqueId);
+        log.info("Get last by id :: [{}]", uniqueId);
+        return Optional.ofNullable(service.findLastBy(uniqueId))
+                .map(DataEvent::getData)
+                .orElse(null);
     }
 
     @Override
@@ -54,7 +71,9 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
 
     @Override
     public boolean delete(String uniqueId) {
-        return service.deleteBy(uniqueId);
+        log.info("Delete base by id :: [{}]", uniqueId);
+        if (onDeleteDoDataHistorization) dataHistorization(uniqueId);
+        return service.insertBy(DataEvent.<T>create().setDataset(uniqueId, Boolean.TRUE, null));
     }
 
     @Override
@@ -73,7 +92,32 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
 
     @Override
     public boolean isDeleted(String uniqueId) {
-        return service.isDeletedBy(uniqueId);
+        log.info("Check deletion by :: [{}]", uniqueId);
+        return Optional.ofNullable(service.findLastBy(uniqueId))
+                .map(DataEvent::getDeleted)
+                .orElse(Boolean.FALSE);
+    }
+
+
+    protected List<T> findAllBy(String uniqueId, String tableName) {
+        log.info("Find all by id :: [{}] :: table :: [{}]", uniqueId, tableName);
+        return service.findAllEventsBy(uniqueId, tableName).stream().map(DataEvent::getData).toList();
+    }
+
+    protected boolean dataHistorization(String uniqueId) {
+        log.info("Data Historization of [{}]", uniqueId);
+        try {
+            log.info("First :: move to history...");
+            var moveToHistory = service.moveToHistory(uniqueId);
+            log.info("Success :: [{}]", moveToHistory);
+            log.info("Second :: remove from base...");
+            var removeFromBase = service.removeFromBase(uniqueId);
+            log.info("Success :: [{}]", removeFromBase);
+            return moveToHistory && removeFromBase;
+        } catch (Exception e) {
+            log.error("Data Historization error :: {}", e.getMessage());
+            return false;
+        }
     }
 
     public History history() {
@@ -93,8 +137,18 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
         }
 
         @Override
+        public List<DataEvent<T>> getAll() {
+            return service.findAll(getTableName());
+        }
+
+        @Override
         public List<T> getAll(String uniqueId) {
-            return service.findAllBy(uniqueId, service.getTableNameHistory());
+            return findAllBy(uniqueId, service.getTableNameHistory());
+        }
+
+        @Override
+        public List<String> getAllIds() {
+            return getAll().stream().map(DataEvent::getUniqueId).toList();
         }
 
         @Override
@@ -104,7 +158,7 @@ public abstract class DataActions<T> implements DataActionsBase<T> {
 
         @Override
         public boolean historization(String uniqueId) {
-            return service.dataHistorization(uniqueId);
+            return dataHistorization(uniqueId);
         }
 
         @Override

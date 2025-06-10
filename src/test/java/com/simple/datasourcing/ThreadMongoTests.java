@@ -6,6 +6,8 @@ import com.simple.datasourcing.thread.*;
 import lombok.extern.slf4j.*;
 import org.junit.jupiter.api.*;
 
+import java.util.concurrent.*;
+
 import static org.assertj.core.api.Assertions.*;
 import static org.awaitility.Awaitility.*;
 
@@ -69,5 +71,16 @@ public class ThreadMongoTests extends ThreadDataSourcingTestBase {
         assertThat(booleanTDA.getSuccessResult()).isTrue();
 
         await().until(da1.deleteInBackground(uniqueId)::isCompleted);
+    }
+
+    @Test
+    void flakyTestForRealThreading() throws InterruptedException {
+        assertThat(da1.count(uniqueId)).isEqualTo(0L);
+        da1.create(uniqueId, testData1);
+        da1.create(uniqueId, testData1);
+        assertThat(da1.count(uniqueId)).isEqualTo(2L);
+        da1.deleteInBackground(uniqueId);
+        TimeUnit.SECONDS.sleep(3);
+        assertThat(da1.count(uniqueId)).isEqualTo(1L);
     }
 }

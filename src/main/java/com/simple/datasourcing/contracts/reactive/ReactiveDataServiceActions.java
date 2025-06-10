@@ -16,6 +16,8 @@ public interface ReactiveDataServiceActions<T, Q> {
 
     Mono<Boolean> truncate(String tableName);
 
+    Flux<DataEvent<T>> findAll(String tableName);
+
     Flux<DataEvent<T>> findAllEventsBy(String uniqueId, String tableName);
 
     Mono<Boolean> tableExists(String tableName);

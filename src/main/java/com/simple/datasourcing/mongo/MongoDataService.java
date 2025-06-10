@@ -46,6 +46,12 @@ public class MongoDataService<T> extends DataService<T, MongoTemplate, Query> {
 
     @SuppressWarnings("unchecked")
     @Override
+    public List<DataEvent<T>> findAll(String tableName) {
+        return (List<DataEvent<T>>) dataTemplate().findAll(DataEvent.create().getClass(), tableName);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
     public List<DataEvent<T>> findAllEventsBy(String uniqueId, String tableName) {
         return (List<DataEvent<T>>) dataTemplate().find(getQueryById(uniqueId), DataEvent.create().getClass(), tableName);
     }

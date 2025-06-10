@@ -83,6 +83,11 @@ public abstract class SqlDataService<T> extends DataService<T, JdbcTemplate, Str
     }
 
     @Override
+    public List<DataEvent<T>> findAll(String tableName) {
+        return dataTemplate().query("select * from %s".formatted(tableName), getDataEventRowMapper());
+    }
+
+    @Override
     public List<DataEvent<T>> findAllEventsBy(String uniqueId, String tableName) {
         return dataTemplate().query("select * from %s %s".formatted(tableName, getQueryById(uniqueId)), getDataEventRowMapper(), uniqueId);
     }

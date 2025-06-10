@@ -74,7 +74,17 @@ public class DataSourcingTestBase extends AuditTestBase {
     }
 
     @Override
-    protected void checkGetAllEqual(String uniqueId, int count, List<TestData> testDataList) {
+    protected void checkGetAllCount(int count) {
+        assertThat(dataActions.getAll()).hasSize(count);
+    }
+
+    @Override
+    protected void checkGetAllIdsEqual(List<String> ids) {
+        assertThat(dataActions.getAllIds()).isEqualTo(ids);
+    }
+
+    @Override
+    protected void checkGetAllCountEqual(String uniqueId, int count, List<TestData> testDataList) {
         assertThat(dataActions.getAll(uniqueId)).hasSize(count).isEqualTo(testDataList);
     }
 

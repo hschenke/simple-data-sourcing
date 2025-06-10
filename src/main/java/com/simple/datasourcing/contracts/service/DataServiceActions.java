@@ -16,6 +16,8 @@ public interface DataServiceActions<T, Q> {
 
     boolean truncate(String tableName);
 
+    List<DataEvent<T>> findAll(String tableName);
+
     List<DataEvent<T>> findAllEventsBy(String uniqueId, String tableName);
 
     boolean tableExists(String tableName);

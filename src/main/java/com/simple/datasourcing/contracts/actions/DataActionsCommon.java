@@ -1,5 +1,7 @@
 package com.simple.datasourcing.contracts.actions;
 
+import com.simple.datasourcing.model.*;
+
 import java.util.*;
 
 public interface DataActionsCommon<T> {
@@ -8,7 +10,11 @@ public interface DataActionsCommon<T> {
 
     boolean truncate();
 
+    List<DataEvent<T>> getAll();
+
     List<T> getAll(String uniqueId);
+
+    List<String> getAllIds();
 
     long count(String uniqueId);
 }

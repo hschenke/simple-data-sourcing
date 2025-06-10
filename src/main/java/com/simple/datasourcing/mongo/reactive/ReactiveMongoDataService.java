@@ -68,6 +68,15 @@ public class ReactiveMongoDataService<T> extends ReactiveDataService<T, Reactive
     //TODO: get rid of warning
     @SuppressWarnings("unchecked")
     @Override
+    public Flux<DataEvent<T>> findAll(String tableName) {
+        return (Flux<DataEvent<T>>) checkedDataTemplate()
+                .flatMapMany(dt -> dt
+                        .findAll(DataEvent.create().getClass(), tableName));
+    }
+
+    //TODO: get rid of warning
+    @SuppressWarnings("unchecked")
+    @Override
     public Flux<DataEvent<T>> findAllEventsBy(String uniqueId, String tableName) {
         return (Flux<DataEvent<T>>) checkedDataTemplate()
                 .flatMapMany(dt -> dt
@@ -90,7 +99,7 @@ public class ReactiveMongoDataService<T> extends ReactiveDataService<T, Reactive
     @Override
     public Mono<DataEvent<T>> findLastBy(String uniqueId) {
         return (Mono<DataEvent<T>>) checkedDataTemplate().flatMap(dt ->
-                dt.findOne(getQueryLastById(uniqueId), DataEvent.create().getClass(), getTableNameBase()))
+                        dt.findOne(getQueryLastById(uniqueId), DataEvent.create().getClass(), getTableNameBase()))
                 .doOnSuccess(lastData -> log.info("Last data found :: {}", lastData));
     }
 

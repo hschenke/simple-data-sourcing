@@ -15,7 +15,10 @@ public abstract class AuditTestBase extends TestcontainerSetup implements TestDa
         checkCreate(uniqueId, testData1_2);
         checkCreate(uniqueIdNext, testData1_next);
         checkCount(uniqueId, 2L);
-        checkGetAllEqual(uniqueId, 2, List.of(testData1, testData1_2));
+        checkCount(uniqueIdNext, 1L);
+        checkGetAllCount(3);
+        checkGetAllIdsEqual(List.of(uniqueId, uniqueId, uniqueIdNext));
+        checkGetAllCountEqual(uniqueId, 2, List.of(testData1, testData1_2));
         checkGetLast(uniqueId, testData1_2);
         checkIsDeleted(uniqueId, false);
         checkCountHistory(uniqueId, 0L);
@@ -32,7 +35,7 @@ public abstract class AuditTestBase extends TestcontainerSetup implements TestDa
         setDataActions(testData);
         checkCreate(uniqueId, testData);
         checkCount(uniqueId, 1L);
-        checkGetAllEqual(uniqueId, 1, List.of(testData));
+        checkGetAllCountEqual(uniqueId, 1, List.of(testData));
         checkCountHistory(uniqueId, 0L);
         checkDataHistorization(uniqueId);
         checkCountHistory(uniqueId, 1L);
@@ -47,7 +50,11 @@ public abstract class AuditTestBase extends TestcontainerSetup implements TestDa
 
     protected abstract void checkCount(String uniqueId, long count);
 
-    protected abstract void checkGetAllEqual(String uniqueId, int i, List<TestData> testData);
+    protected abstract void checkGetAllCount(int count);
+
+    protected abstract void checkGetAllIdsEqual(List<String> ids);
+
+    protected abstract void checkGetAllCountEqual(String uniqueId, int count, List<TestData> testData);
 
     protected abstract void checkGetLast(String uniqueId, TestData testData);
 

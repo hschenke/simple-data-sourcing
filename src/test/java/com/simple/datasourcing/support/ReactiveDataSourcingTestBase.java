@@ -74,7 +74,17 @@ public class ReactiveDataSourcingTestBase extends AuditTestBase {
     }
 
     @Override
-    protected void checkGetAllEqual(String uniqueId, int count, List<TestData> testDataList) {
+    protected void checkGetAllCount(int count) {
+//TODO
+    }
+
+    @Override
+    protected void checkGetAllIdsEqual(List<String> ids) {
+//TODO
+    }
+
+    @Override
+    protected void checkGetAllCountEqual(String uniqueId, int count, List<TestData> testDataList) {
         StepVerifier.FirstStep<?> getAll = StepVerifier.create(dataActions.getAll(uniqueId));
         testDataList.forEach(_ -> getAll.expectNextMatches(Objects::nonNull));
         getAll.verifyComplete();
