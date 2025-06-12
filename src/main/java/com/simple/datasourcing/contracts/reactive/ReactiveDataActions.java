@@ -29,7 +29,7 @@ public class ReactiveDataActions<T> implements ReactiveDataActionsBase<T> {
     }
 
     @Override
-    public Mono<Boolean> create(String uniqueId, T data) {
+    public Mono<Boolean> add(String uniqueId, T data) {
         return service.insertBy(DataEvent.<T>create().setDataset(uniqueId, Boolean.FALSE, data))
                 .doOnSuccess(de -> log.info("Inserted data :: {}", de))
                 .doOnError(error -> log.error("Error :: not inserted :: {}", error.getMessage()))
@@ -95,6 +95,7 @@ public class ReactiveDataActions<T> implements ReactiveDataActionsBase<T> {
     }
 
     public Mono<Boolean> dataHistorization(String uniqueId) {
+        log.info("Data historization :: [{}]", uniqueId);
         return service.moveToHistory(uniqueId)
                 .flatMap(_ -> service.removeFromBase(uniqueId))
                 .doOnSuccess(_ -> log.info("Historization completed successfully"))

@@ -47,9 +47,9 @@ public class ThreadMongoTests extends ThreadDataSourcingTestBase {
     void miscOwnTests() {
         var booleanTDA = new ThreadDataAction<Boolean>();
 
-        assertThreadDataAction(ThreadDataAction.constructComplete(() -> da1.create(uniqueId, testData1)), true);
+        assertThreadDataAction(ThreadDataAction.constructComplete(() -> da1.add(uniqueId, testData1)), true);
         assertThreadDataAction(ThreadDataAction.constructComplete(() -> {
-            da1.create(uniqueId, testData1);
+            da1.add(uniqueId, testData1);
             return da1.count(uniqueId);
         }), 2L);
 
@@ -76,8 +76,8 @@ public class ThreadMongoTests extends ThreadDataSourcingTestBase {
     @Test
     void flakyTestForRealThreading() throws InterruptedException {
         assertThat(da1.count(uniqueId)).isEqualTo(0L);
-        da1.create(uniqueId, testData1);
-        da1.create(uniqueId, testData1);
+        da1.add(uniqueId, testData1);
+        da1.add(uniqueId, testData1);
         assertThat(da1.count(uniqueId)).isEqualTo(2L);
         da1.deleteInBackground(uniqueId);
         TimeUnit.SECONDS.sleep(3);

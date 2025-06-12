@@ -11,14 +11,17 @@ import static org.assertj.core.api.Assertions.*;
 @Slf4j
 public class ReactiveDataSourcingTestBase extends AuditTestBase {
 
-    ReactiveDataActions<?> dataActions;
-    ReactiveDataActions<?>.History dataActionsHistory;
+    public ReactiveDataMaster dataMaster;
 
-    ReactiveDataActions<TestData1> da1;
-    ReactiveDataActions<TestData2> da2;
-    ReactiveDataActions<TestData3> da3;
+    public ReactiveDataActions<?> dataActions;
+    public ReactiveDataActions<?>.History dataActionsHistory;
+
+    public ReactiveDataActions<TestData1> da1;
+    public ReactiveDataActions<TestData2> da2;
+    public ReactiveDataActions<TestData3> da3;
 
     public ReactiveDataSourcingTestBase(ReactiveDataMaster dataMaster) {
+        this.dataMaster = dataMaster;
         this.da1 = dataMaster.getDataActions(TestData1.class);
         this.da2 = dataMaster.getDataActions(TestData2.class);
         this.da3 = dataMaster.getDataActions(TestData3.class);
@@ -65,12 +68,16 @@ public class ReactiveDataSourcingTestBase extends AuditTestBase {
 
     @Override
     protected void checkCreate(String uniqueId, TestData testData) {
-        StepVerifier.create(getDa(testData).create(uniqueId, testData)).expectNext(true).verifyComplete();
+        StepVerifier.create(getDa(testData).add(uniqueId, testData)).expectNext(true).verifyComplete();
     }
 
     @Override
     protected void checkCount(String uniqueId, long count) {
         StepVerifier.create(dataActions.count(uniqueId)).expectNext(count).verifyComplete();
+    }
+
+    protected void checkCount(ReactiveDataActions<?> actions,long count) {
+        StepVerifier.create(actions.count(uniqueId)).expectNext(count).verifyComplete();
     }
 
     @Override

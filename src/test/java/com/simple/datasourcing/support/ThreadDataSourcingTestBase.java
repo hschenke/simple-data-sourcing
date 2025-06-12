@@ -24,7 +24,7 @@ public class ThreadDataSourcingTestBase extends DataSourcingTestBase {
 
     @Override
     protected void checkCreate(String uniqueId, TestData testData) {
-        assertThreadDataAction(ThreadDataAction.constructComplete(() -> getDa(testData).create(uniqueId, testData)), true);
+        assertThreadDataAction(ThreadDataAction.constructComplete(() -> getDa(testData).add(uniqueId, testData)), true);
     }
 
     @Override

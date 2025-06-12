@@ -4,7 +4,7 @@ import reactor.core.publisher.*;
 
 public interface ReactiveDataActionsBase<T> extends ReactiveDataActionsCommon<T> {
 
-    Mono<Boolean> create(String uniqueId, T data);
+    Mono<Boolean> add(String uniqueId, T data);
 
     Mono<T> getLast(String uniqueId);
 

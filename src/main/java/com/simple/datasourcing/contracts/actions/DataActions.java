@@ -32,7 +32,7 @@ public class DataActions<T> implements DataActionsBase<T> {
     }
 
     @Override
-    public boolean create(String uniqueId, T data) {
+    public boolean add(String uniqueId, T data) {
         log.info("Insert data :: [{}] - {}", uniqueId, data);
         return service.insertBy(DataEvent.<T>create().setDataset(uniqueId, Boolean.FALSE, data));
     }

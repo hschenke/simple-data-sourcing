@@ -3,6 +3,7 @@ package com.simple.datasourcing.contracts.reactive;
 import com.simple.datasourcing.contracts.connection.*;
 import lombok.*;
 import lombok.extern.slf4j.*;
+import reactor.core.publisher.*;
 
 @Slf4j
 @Getter
@@ -19,4 +20,9 @@ public abstract class ReactiveDataMaster implements ReactiveDataMasterActions {
     protected abstract DataConnection<?> generateDataConnection();
 
     protected abstract <T> ReactiveDataService<T, ?, ?> getDataService(Class<T> clazz);
+
+    @Override
+    public Mono<Void> deleteAll(String uniqueId, Flux<ReactiveDataActions<?>> dataActions) {
+        return dataActions.flatMap(actions -> actions.delete(uniqueId)).then();
+    }
 }

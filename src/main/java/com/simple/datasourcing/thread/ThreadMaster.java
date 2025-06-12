@@ -32,6 +32,19 @@ public class ThreadMaster {
         return this;
     }
 
+    public ThreadMaster run(Runnable action,
+                            Consumer<Exception> error) {
+        Thread.ofVirtual().start(() -> {
+            try {
+                action.run();
+            } catch (Exception e) {
+                error.accept(e);
+            }
+            completed.set(true);
+        });
+        return this;
+    }
+
     public static <T> CallbackOrErrorOrExecuteSetter<T> action(Supplier<T> action) {
         return new ActionBuilder<>(action);
     }

@@ -11,6 +11,8 @@ import static org.assertj.core.api.Assertions.*;
 @Slf4j
 public class DataSourcingTestBase extends AuditTestBase {
 
+    public DataMaster dataMaster;
+
     public DataActions<?> dataActions;
     public DataActions<?>.History dataActionsHistory;
 
@@ -19,6 +21,7 @@ public class DataSourcingTestBase extends AuditTestBase {
     public DataActions<TestData3> da3;
 
     public DataSourcingTestBase(DataMaster dataMaster) {
+        this.dataMaster = dataMaster;
         this.da1 = dataMaster.getDataActions(TestData1.class);
         this.da2 = dataMaster.getDataActions(TestData2.class);
         this.da3 = dataMaster.getDataActions(TestData3.class);
@@ -65,12 +68,16 @@ public class DataSourcingTestBase extends AuditTestBase {
 
     @Override
     protected void checkCreate(String uniqueId, TestData testData) {
-        assertThat(getDa(testData).create(uniqueId, testData)).isTrue();
+        assertThat(getDa(testData).add(uniqueId, testData)).isTrue();
     }
 
     @Override
     protected void checkCount(String uniqueId, long count) {
         assertThat(dataActions.count(uniqueId)).isEqualTo(count);
+    }
+
+    protected void checkCount(DataActions<?> actions, long count) {
+        assertThat(actions.count(uniqueId)).isEqualTo(count);
     }
 
     @Override

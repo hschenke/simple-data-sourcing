@@ -6,7 +6,7 @@ import java.util.function.*;
 
 public interface DataActionsBase<T> extends DataActionsCommon<T> {
 
-    boolean create(String uniqueId, T data);
+    boolean add(String uniqueId, T data);
 
     T getLast(String uniqueId);
 
